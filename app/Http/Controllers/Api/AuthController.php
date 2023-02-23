@@ -25,7 +25,7 @@ class AuthController extends Controller
         $user = User::where('email', $request->email)->first();
         return $this->success([
             'user' => $user,
-            'token' => User::createToken('Api token'.$user->name)->plainTextToken
+            'token' => $user->createToken('Api token'.$user->name)->plainTextToken
         ]);
     }
 
@@ -44,6 +44,10 @@ class AuthController extends Controller
     }
 
     public function logout() {
-        return response()->json('Registration');
+       Auth::user()->currentAccessToken()->delete();
+
+       return $this->success([
+          'message' => 'Logged out.'
+       ]);
     }
 }
