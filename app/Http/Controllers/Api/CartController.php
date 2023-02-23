@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Auth;
 class CartController extends Controller
 {
     public function addToCart(Request $request) {
-        $orders = Order::where('status', 0)->first();
+        $orders = Order::where('user_id', Auth::id())->where('status', 0)->first();
 
         if(is_null($orders)) {
             $orders = Order::create([
@@ -35,6 +35,27 @@ class CartController extends Controller
             $cart->update([
                 'count' => $cart->count+1
             ]);
+        }
+
+        return new CartResource($cart);
+    }
+
+    public function removeFromCart(Request $request) {
+        $orders = Order::where('user_id', Auth::id())->where('status', 0)->first();
+
+        if(!is_null($orders)) {
+            $cart = Cart::where('id', $request->id)->first();
+            if (!is_null($cart)){
+                if($cart->count > 1) {
+                    $cart->update([
+                        'count' => $cart->count - 1
+                    ]);
+                } else {
+                    $cart->delete();
+                }
+            } else {
+                return response()->json(['data' => 'null']);
+            }
         }
 
         return new CartResource($cart);

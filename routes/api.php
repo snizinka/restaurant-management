@@ -19,5 +19,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/restaurant/{id}', [RestaurantController::class, 'dishesList']);
     Route::post('/cart/add', [CartController::class, 'addToCart']);
+    Route::post('/cart/remove', [CartController::class, 'removeFromCart']);
+    Route::post('/order/place', [CartController::class, 'removeFromCart']);
     Route::resource('/dishes', DishesController::class);
 });
