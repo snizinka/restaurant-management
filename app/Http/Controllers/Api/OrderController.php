@@ -30,4 +30,12 @@ class OrderController extends Controller
 
         return new OrderResource($orders);
     }
+
+    public function checkOrder(Request $request) {
+        $orders = Order::where('user_id', Auth::id())->where('status', '>', 0)->get();
+
+        if(count($orders) <= 1) {
+            return OrderResource::collection($orders);
+        }
+    }
 }

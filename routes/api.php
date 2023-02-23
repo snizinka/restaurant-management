@@ -22,5 +22,6 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('/cart/add', [CartController::class, 'addToCart']);
     Route::post('/cart/remove', [CartController::class, 'removeFromCart']);
     Route::post('/order/place', [OrderController::class, 'placeOrder']);
+    Route::get('/order/status', [OrderController::class, 'checkOrder']);
     Route::resource('/dishes', DishesController::class);
 });
