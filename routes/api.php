@@ -23,5 +23,6 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('/cart/remove', [CartController::class, 'removeFromCart']);
     Route::post('/order/place', [OrderController::class, 'placeOrder']);
     Route::get('/order/status', [OrderController::class, 'checkOrder']);
+    Route::get('/order/averagecost', [OrderController::class, 'averageOrderCost']);
     Route::resource('/dishes', DishesController::class);
 });
