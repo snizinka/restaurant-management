@@ -35,6 +35,10 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('/dishes/{id}/update', [DishesController::class, 'update']);
     Route::delete('/dishes/{id}', [DishesController::class, 'destroy']);
     Route::get('/restaurants', [RestaurantController::class, 'restaurantList']);
+    Route::get('/restaurants/{id}', [RestaurantController::class, 'getRestaurant']);
+    Route::post('/restaurants/{id}', [RestaurantController::class, 'updateRestaurant']);
+    Route::delete('/restaurants/{id}', [RestaurantController::class, 'removeRestaurant']);
+    Route::post('/restaurants', [RestaurantController::class, 'addRestaurant']);
     Route::get('/categories', [DishCategoryController::class, 'categories']);
     Route::get('/drivers', [DriverController::class, 'getAllDrivers']);
     Route::post('/drivers/{id}', [OrderController::class, 'assignDriver']);

@@ -14,8 +14,8 @@ class RestaurantResource extends JsonResource
         'id' => (string)$this->id,
         'attributes' => [
             'name' => $this->name,
-            'address' => $this->price,
-            'contacts' => $this->ingredients,
+            'address' => $this->address,
+            'contacts' => $this->contacts,
         ]
     ];
     }
