@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\CartController;
 use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\DishCategoryController;
+use App\Http\Controllers\Api\DriverController;
 
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
@@ -23,6 +24,8 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('/cart/add', [CartController::class, 'addToCart']);
     Route::post('/cart/remove', [CartController::class, 'removeFromCart']);
     Route::get('/orders', [OrderController::class, 'allOrders']);
+    Route::get('/orders/{id}', [OrderController::class, 'orderDetails']);
+    Route::delete('/orders/{id}', [OrderController::class, 'removeOrder']);
     Route::post('/order/place', [OrderController::class, 'placeOrder']);
     Route::get('/order/status', [OrderController::class, 'checkOrder']);
     Route::get('/order/averagecost', [OrderController::class, 'averageOrderCost']);
@@ -33,4 +36,6 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::delete('/dishes/{id}', [DishesController::class, 'destroy']);
     Route::get('/restaurants', [RestaurantController::class, 'restaurantList']);
     Route::get('/categories', [DishCategoryController::class, 'categories']);
+    Route::get('/drivers', [DriverController::class, 'getAllDrivers']);
+    Route::post('/drivers/{id}', [OrderController::class, 'assignDriver']);
 });
