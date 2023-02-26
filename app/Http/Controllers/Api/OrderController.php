@@ -15,6 +15,13 @@ use Illuminate\Support\Facades\Auth;
 class OrderController extends Controller
 {
     use HttpResponses;
+
+    public function allOrders() {
+        $orders = Order::where('status', 1)->get();
+
+        return OrderResource::collection($orders);
+    }
+
     public function placeOrder(StoreOrderRequest $request) {
         $request->validated($request->all());
         $orders = Order::where('user_id', Auth::id())->where('status', 0)->first();
