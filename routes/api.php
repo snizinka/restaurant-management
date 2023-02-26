@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\CartController;
 use App\Http\Controllers\Api\OrderController;
+use App\Http\Controllers\Api\DishCategoryController;
 
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
@@ -24,5 +25,11 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('/order/place', [OrderController::class, 'placeOrder']);
     Route::get('/order/status', [OrderController::class, 'checkOrder']);
     Route::get('/order/averagecost', [OrderController::class, 'averageOrderCost']);
-    Route::resource('/dishes', DishesController::class);
+    Route::get('/dishes', [DishesController::class, 'index']);
+    Route::post('/dishes', [DishesController::class, 'store']);
+    Route::get('/dishes/{id}', [DishesController::class, 'show']);
+    Route::post('/dishes/{id}/update', [DishesController::class, 'update']);
+    Route::delete('/dishes/{id}', [DishesController::class, 'destroy']);
+    Route::get('/restaurants', [RestaurantController::class, 'restaurantList']);
+    Route::get('/categories', [DishCategoryController::class, 'categories']);
 });

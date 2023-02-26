@@ -33,7 +33,9 @@ class DishesController extends Controller
     }
     public function show(string $id)
     {
-        //
+        return new DishesResource(
+            Dish::where('id', $id)->first()
+        );
     }
     public function edit(string $id)
     {
@@ -41,11 +43,25 @@ class DishesController extends Controller
     }
     public function update(Request $request, string $id)
     {
-        //
+        $dish = Dish::where('id', $id)->first();
+        $data = [
+            'name' => $request->input('name'),
+            'price' => $request->input('price'),
+            'ingredients' => $request->input('ingredients'),
+            'category_id' => $request->input('category_id'),
+            'restaurant_id' => $request->input('restaurant_id'),
+        ];
+
+       $dish->update($data);
+
+        return $data;
     }
 
     public function destroy(string $id)
     {
-        //
+        $dish = Dish::where('id', $id)->first();
+        $dish->delete();
+
+        return true;
     }
 }
