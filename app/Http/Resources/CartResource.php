@@ -24,6 +24,10 @@ class CartResource extends JsonResource
                     'name' => $this->dish->name,
                     'price' => $this->dish->price,
                     'ingredients' => $this->dish->ingredients,
+                ],
+                'restaurant' => [
+                    'id' => $this->dish->restaurant->id,
+                    'name' => $this->dish->restaurant->name,
                 ]
             ]
         ];
