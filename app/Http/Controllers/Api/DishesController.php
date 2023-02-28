@@ -35,8 +35,14 @@ class DishesController extends Controller
     }
     public function show(string $id)
     {
+        $dish = Dish::where('id', $id)->first();
+
+        if($dish == null) {
+            return [];
+        }
+
         return new DishesResource(
-            Dish::where('id', $id)->first()
+            $dish
         );
     }
     public function edit(string $id)

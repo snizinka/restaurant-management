@@ -29,6 +29,10 @@ class RestaurantController extends Controller
     public function getRestaurant(string $id) {
         $restaurant = Restaurant::where('id', $id)->first();
 
+        if($restaurant == null) {
+            return [];
+        }
+
         return new RestaurantResource($restaurant);
     }
 

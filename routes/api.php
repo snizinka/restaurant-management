@@ -43,4 +43,8 @@ Route::group(['middleware' => ['hasbearer']], function () {
     Route::get('/categories', [DishCategoryController::class, 'categories']);
     Route::get('/drivers', [DriverController::class, 'getAllDrivers']);
     Route::post('/drivers/{id}', [OrderController::class, 'assignDriver']);
+    Route::post('/drivers', [DriverController::class, 'addDriver']);
+    Route::get('/drivers/{id}', [DriverController::class, 'getDriver']);
+    Route::put('/drivers/{id}', [DriverController::class, 'updateDriver']);
+    Route::delete('/drivers/{id}', [DriverController::class, 'removeDriver']);
 });
