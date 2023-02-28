@@ -20,4 +20,13 @@ class StoreOrderRequest extends FormRequest
             'username' => ['required', 'max:255'],
         ];
     }
+
+    public function messages()
+    {
+        return [
+            'address.required' => "Please enter delivery address.",
+            'phone.required' => "Please enter your phone.",
+            'username.required' => "Please enter your contacts.",
+        ];
+    }
 }

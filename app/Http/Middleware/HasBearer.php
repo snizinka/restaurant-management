@@ -20,6 +20,8 @@ class HasBearer
 
         if (!$user) {
             return $this->error('401', ['unauthorized' => ['You need to be authorized first']], 401);
+        }else {
+            Auth::loginUsingId($user->tokenable_id, TRUE);
         }
 
         return $next($request);

@@ -36,7 +36,8 @@ class RestaurantController extends Controller
         return new RestaurantResource($restaurant);
     }
 
-    public function updateRestaurant(Request $request, string $id) {
+    public function updateRestaurant(StoreRestaurantRequest $request, string $id) {
+        $request->validated($request->all());
         $restaurant = Restaurant::where('id', $id)->first();
         $restaurant->update([
             'name' => $request->input('name'),

@@ -36,6 +36,7 @@ class DriverController extends Controller
     }
 
     public function updateDriver(StoreDriverRequest $request, string $id) {
+        $request->validated($request->all());
         $drivers = Driver::where('id', $id)->first();
 
         if($drivers == null) {

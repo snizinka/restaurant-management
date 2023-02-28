@@ -49,8 +49,9 @@ class DishesController extends Controller
     {
         //
     }
-    public function update(Request $request, string $id)
+    public function update(StoreDishRequest $request, string $id)
     {
+        $request->validated($request->all());
         $dish = Dish::where('id', $id)->first();
         $data = [
             'name' => $request->input('name'),
@@ -62,7 +63,7 @@ class DishesController extends Controller
 
        $dish->update($data);
 
-        return $data;
+        return new DishesResource($dish);
     }
 
     public function destroy(string $id)

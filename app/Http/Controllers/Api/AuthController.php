@@ -22,8 +22,10 @@ class AuthController extends Controller
         if (!Auth::attempt($request->only('email', 'password'))) {
             return $this->error('401', ['password' => ['Wrong login or password']], 401);
         }
+        
 
         $user = User::where('email', $request->email)->first();
+        Auth::login($user);
         return $this->success([
             'user' => $user,
             'token' => $user->createToken('Api token'.$user->name)->plainTextToken
