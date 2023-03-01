@@ -19,10 +19,10 @@ class AuthController extends Controller
     public function login(LoginUserRequest $request) {
         $request->validated($request->all());
 
-        if (!Auth::attempt($request->only('email', 'password'))) {
+        if (!Auth::attempt($request->only('email', 'password'), $request->remember == "on")) {
             return $this->error('401', ['password' => ['Wrong login or password']], 401);
         }
-        
+
 
         $user = User::where('email', $request->email)->first();
         Auth::login($user);
