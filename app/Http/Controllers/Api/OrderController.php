@@ -79,11 +79,22 @@ class OrderController extends Controller
             ->groupBy(DB::raw('CAST(od.created_at AS date)'))
             ->get();
 
-        return $orders;
+        return $this->success(['average' => $orders]);
     }
 
     public function averageDriverPaid() {
+        $orders = DB::table('orders as od')
+            ->leftJoin('carts as ct', 'ct.order_id', '=', 'od.id')
+            ->leftJoin('drivers as ds', 'od.driver_id', '=', 'ds.id')
+            ->selectRaw('sum(15) as "paid", count(*) as "deliveries", CAST(od.created_at AS date) as "date"')
+            ->whereRaw('DATEDIFF(current_date, od.created_at) between 0 and 30 AND od.status > 1')
+            ->groupBy(DB::raw('CAST(od.created_at AS date)'))
+            ->get();
 
+        $result = $orders->avg('paid') / $orders->count();
+        $result = round($result, 2);
+
+        return $this->success(['average' => $result]);
     }
 }
 

@@ -30,6 +30,7 @@ Route::group(['middleware' => ['hasbearer']], function () {
     Route::post('/order/place', [OrderController::class, 'placeOrder']);
     Route::get('/order/status', [OrderController::class, 'checkOrder']);
     Route::get('/order/averagecost', [OrderController::class, 'averageOrderCost']);
+    Route::get('/order/averagepaid', [OrderController::class, 'averageDriverPaid']);
     Route::get('/dishes', [DishesController::class, 'index']);
     Route::post('/dishes', [DishesController::class, 'store']);
     Route::get('/dishes/{id}', [DishesController::class, 'show']);
