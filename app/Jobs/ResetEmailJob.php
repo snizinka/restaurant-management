@@ -11,19 +11,23 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 
 class ResetEmailJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     protected $data;
-    public function __construct(User $user)
+    protected $password;
+    public function __construct(User $user, $password)
     {
         $this->data = $user;
+        $this->password = $password;
     }
     public function handle(): void
     {
-        Mail::to($this->data->email)->send(new ResetEmail($this->data->id));
+        Mail::to($this->data->email)->send(new ResetEmail($this->data->id, $this->password));
     }
 }

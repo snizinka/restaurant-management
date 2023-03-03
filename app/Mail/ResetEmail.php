@@ -15,9 +15,11 @@ class ResetEmail extends Mailable
     use Queueable, SerializesModels;
 
     public $data;
-    public function __construct($data)
+    public $password;
+    public function __construct($data, $password)
     {
         $this->data = $data;
+        $this->password = $password;
     }
     public function envelope(): Envelope
     {

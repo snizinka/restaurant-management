@@ -1,12 +1,7 @@
 <x-mail::message>
-# Introduction
+# Reset password
 
-The body of your message.
+Here is your new password: {{$password}}
 
-<x-mail::button :url="'http://127.0.0.1:8000/api/emai/reset/'.$data">
-Button Text
-</x-mail::button>
-
-Thanks,<br>
-{{ config('app.name') }}
+You can change your password as soon as your are logged in.
 </x-mail::message>

@@ -54,4 +54,5 @@ Route::group(['middleware' => ['hasbearer']], function () {
     Route::get('/drivers/{id}', [DriverController::class, 'getDriver']);
     Route::put('/drivers/{id}', [DriverController::class, 'updateDriver']);
     Route::delete('/drivers/{id}', [DriverController::class, 'removeDriver']);
+    Route::put('/reset', [AuthController::class, 'confirmReset']);
 });
