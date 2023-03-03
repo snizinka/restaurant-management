@@ -29,8 +29,7 @@ class VerifyEmailController extends Controller
         if (!$request->hasValidSignature()) {
             abort(401);
         }
-        dd($request);
 
-        return redirect('http://127.0.0.1:8080'.'/resetpassword')->with(['email' => 'bofdf']);
+        return redirect('http://127.0.0.1:8080'.'/resetpassword'));
     }
 }

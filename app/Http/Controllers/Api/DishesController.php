@@ -9,6 +9,8 @@ use App\Models\Dish;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use PHPUnit\Event\Exception;
 
 class DishesController extends Controller
 {
@@ -23,13 +25,21 @@ class DishesController extends Controller
     {
         $request->validated($request->all());
 
-        $dish = Dish::create([
-            'name' => $request->name,
-            'price' => $request->price,
-            'ingredients' => $request->ingredients,
-            'category_id' => $request->category_id,
-            'restaurant_id' => $request->restaurant_id
-        ]);
+        try {
+            DB::beginTransaction();
+            $dish = Dish::create([
+                'name' => $request->name,
+                'price' => $request->price,
+                'ingredients' => $request->ingredients,
+                'category_id' => $request->category_id,
+                'restaurant_id' => $request->restaurant_id
+            ]);
+            DB::commit();
+        } catch(Exception $ex) {
+            DB::rollBack();
+            abort(500);
+        }
+
 
         return new DishesResource($dish);
     }
@@ -61,7 +71,14 @@ class DishesController extends Controller
             'restaurant_id' => $request->input('restaurant_id'),
         ];
 
-       $dish->update($data);
+        try {
+            DB::beginTransaction();
+            $dish->update($data);
+            DB::commit();
+        } catch(Exception $ex) {
+            DB::rollBack();
+            abort(500);
+        }
 
         return new DishesResource($dish);
     }
@@ -69,7 +86,15 @@ class DishesController extends Controller
     public function destroy(string $id)
     {
         $dish = Dish::where('id', $id)->first();
-        $dish->delete();
+
+        try {
+            DB::beginTransaction();
+            $dish->delete();
+            DB::commit();
+        } catch(Exception $ex) {
+            DB::rollBack();
+            abort(500);
+        }
 
         return true;
     }

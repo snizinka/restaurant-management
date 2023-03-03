@@ -10,6 +10,8 @@ use App\Models\Dish;
 use App\Models\Restaurant;
 use App\Traits\HttpResponses;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use PHPUnit\Event\Exception;
 
 class RestaurantController extends Controller
 {
@@ -39,11 +41,19 @@ class RestaurantController extends Controller
     public function updateRestaurant(StoreRestaurantRequest $request, string $id) {
         $request->validated($request->all());
         $restaurant = Restaurant::where('id', $id)->first();
-        $restaurant->update([
-            'name' => $request->input('name'),
-            'address' => $request->input('address'),
-            'contacts' => $request->input('contacts')
-        ]);
+
+        try {
+            DB::beginTransaction();
+            $restaurant->update([
+                'name' => $request->input('name'),
+                'address' => $request->input('address'),
+                'contacts' => $request->input('contacts')
+            ]);
+            DB::commit();
+        } catch(Exception $ex) {
+            DB::rollBack();
+            abort(500);
+        }
 
         return new RestaurantResource($restaurant);
     }
@@ -58,11 +68,18 @@ class RestaurantController extends Controller
     public function addRestaurant(StoreRestaurantRequest $request) {
         $request->validated($request->all());
 
-        $restaurant = Restaurant::create([
-            'name' => $request->input('name'),
-            'address' => $request->input('address'),
-            'contacts' => $request->input('contacts'),
-        ]);
+        try {
+            DB::beginTransaction();
+            $restaurant = Restaurant::create([
+                'name' => $request->input('name'),
+                'address' => $request->input('address'),
+                'contacts' => $request->input('contacts'),
+            ]);
+            DB::commit();
+        } catch(Exception $ex) {
+            DB::rollBack();
+            abort(500);
+        }
 
         return new RestaurantResource($restaurant);
     }

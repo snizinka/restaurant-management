@@ -9,16 +9,13 @@ use App\Http\Requests\StorePassword;
 use App\Http\Requests\StoreUserRequest;
 use App\Jobs\ResetEmailJob;
 use App\Jobs\WelcomeEmailJob;
-use App\Mail\WelcomeUser;
 use App\Models\User;
 use App\Traits\HttpResponses;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Notification;
-use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Str;
-use Illuminate\Testing\Fluent\Concerns\Has;
+use PHPUnit\Event\Exception;
 
 class AuthController extends Controller
 {
@@ -31,7 +28,6 @@ class AuthController extends Controller
             return $this->error('401', ['password' => ['Wrong login or password']], 401);
         }
 
-
         $user = User::where('email', $request->email)->first();
         Auth::login($user);
         return $this->success([
@@ -42,15 +38,21 @@ class AuthController extends Controller
 
     public function register(StoreUserRequest $request) {
         $request->validated($request->all());
-        $user = User::create([
-           'name' => $request->name,
-           'email' => $request->email,
-           'password' => Hash::make($request->password)
-        ]);
 
+        try {
+            DB::beginTransaction();
+            $user = User::create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'password' => Hash::make($request->password)
+            ]);
+            DB::commit();
+        } catch(Exception $ex) {
+            DB::rollBack();
+            abort(500);
+        }
 
         WelcomeEmailJob::dispatch($user);
-
 
         return $this->success([
             'user' => $user,
@@ -74,9 +76,17 @@ class AuthController extends Controller
         {
             $password = Str::random(8);
             $generated = Hash::make($password);
-            $user->update([
-                'password' => $generated
-            ]);
+
+            try {
+                DB::beginTransaction();
+                $user->update([
+                    'password' => $generated
+                ]);
+                DB::commit();
+            } catch(Exception $ex) {
+                DB::rollBack();
+                abort(500);
+            }
 
             ResetEmailJob::dispatch($user, $password);
         }
@@ -94,9 +104,17 @@ class AuthController extends Controller
         }
 
         $user = User::where('id', Auth::id())->first();
-        $user->update([
-            'password' => Hash::make($storePassword->input('password'))
-        ]);
+
+        try {
+            DB::beginTransaction();
+            $user->update([
+                'password' => Hash::make($storePassword->input('password'))
+            ]);
+            DB::commit();
+        } catch(Exception $ex) {
+            DB::rollBack();
+            abort(500);
+        }
 
         return $this->success([
             'message' => 'Reset'

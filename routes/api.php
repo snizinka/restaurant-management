@@ -7,12 +7,8 @@ use App\Http\Controllers\Api\DishesController;
 use App\Http\Controllers\Api\DriverController;
 use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\RestaurantController;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
-//Route::middleware('auth:api')->get('/user', function (Request $request) {
-  //  return $request->user();
-//});
 
 Route::get('/emai/verify/{id}', [\App\Http\Controllers\VerifyEmailController::class, 'verify'])->name('verify');
 

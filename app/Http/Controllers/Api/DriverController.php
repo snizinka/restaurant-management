@@ -6,8 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\DriverResource;
 use App\Models\Driver;
 use App\Traits\HttpResponses;
-use Illuminate\Http\Request;
 use App\Http\Requests\StoreDriverRequest;
+use Illuminate\Support\Facades\DB;
+use PHPUnit\Event\Exception;
 
 class DriverController extends Controller
 {
@@ -15,10 +16,17 @@ class DriverController extends Controller
     public function addDriver(StoreDriverRequest $request) {
         $request->validated($request->all());
 
-        $driver = Driver::create([
-            'lastname' => $request->input('lastname'),
-            'name' => $request->input('name'),
-        ]);
+        try {
+            DB::beginTransaction();
+            $driver = Driver::create([
+                'lastname' => $request->input('lastname'),
+                'name' => $request->input('name'),
+            ]);
+            DB::commit();
+        } catch(Exception $ex) {
+            DB::rollBack();
+            abort(500);
+        }
 
         return new DriverResource($driver);
     }
@@ -43,10 +51,17 @@ class DriverController extends Controller
             return [];
         }
 
-        $drivers->update([
-            'lastname' => $request->input('lastname'),
-            'name' => $request->input('name'),
-        ]);
+        try {
+            DB::beginTransaction();
+            $drivers->update([
+                'lastname' => $request->input('lastname'),
+                'name' => $request->input('name'),
+            ]);
+            DB::commit();
+        } catch(Exception $ex) {
+            DB::rollBack();
+            abort(500);
+        }
 
         return new DriverResource($drivers);
     }
@@ -57,7 +72,15 @@ class DriverController extends Controller
         if($drivers == null) {
             return [];
         }
-        $drivers->delete();
+
+        try {
+            DB::beginTransaction();
+            $drivers->delete();
+            DB::commit();
+        } catch(Exception $ex) {
+            DB::rollBack();
+            abort(500);
+        }
 
         return $this->success('Success');
     }
