@@ -1,16 +1,20 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\Api\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\LoginUserRequest;
+use App\Http\Requests\ResetPassword;
 use App\Http\Requests\StoreUserRequest;
+use App\Jobs\ResetEmailJob;
+use App\Jobs\WelcomeEmailJob;
+use App\Mail\WelcomeUser;
 use App\Models\User;
 use App\Traits\HttpResponses;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Notification;
 
 class AuthController extends Controller
 {
@@ -39,7 +43,10 @@ class AuthController extends Controller
            'email' => $request->email,
            'password' => Hash::make($request->password)
         ]);
-        $user->sendEmailVerificationNotification();
+
+
+        WelcomeEmailJob::dispatch($user);
+
 
         return $this->success([
             'user' => $user,
@@ -53,5 +60,19 @@ class AuthController extends Controller
        return $this->success([
           'message' => 'Logged out.'
        ]);
+    }
+
+    public function reset(ResetPassword $resetPassword) {
+        $resetPassword->validated($resetPassword->all());
+
+        $user = User::where('email', $resetPassword->email)->first();
+        if($user != null)
+        {
+            ResetEmailJob::dispatch($user);
+        }
+
+        return $this->success([
+            'message' => 'Reset'
+        ]);
     }
 }
