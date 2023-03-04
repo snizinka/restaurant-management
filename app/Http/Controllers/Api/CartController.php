@@ -7,9 +7,12 @@ use App\Http\Resources\CartResource;
 use App\Models\Cart;
 use App\Models\Dish;
 use App\Models\Order;
+use App\Models\Restaurant;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use PHPUnit\Event\Exception;
 
 class CartController extends Controller
 {
@@ -17,24 +20,45 @@ class CartController extends Controller
         $orders = Order::where('user_id', Auth::id())->where('status', 0)->first();
 
         if(is_null($orders)) {
-            $orders = Order::create([
-                'status' => 0,
-                'user_id' => Auth::id()
-            ]);
+            try {
+                DB::beginTransaction();
+                $orders = Order::create([
+                    'status' => 0,
+                    'user_id' => Auth::id()
+                ]);
+                DB::commit();
+            } catch(Exception $ex) {
+                DB::rollBack();
+                abort(500);
+            }
         }
 
         $cart = Cart::where('dish_id', $request->id)->where('order_id', $orders->id)->first();
 
         if(is_null($cart)) {
-            $cart = Cart::create([
-                'count' => 1,
-                'dish_id' => $request->id,
-                'order_id' => $orders->id
-            ]);
+            try {
+                DB::beginTransaction();
+                $cart = Cart::create([
+                    'count' => 1,
+                    'dish_id' => $request->id,
+                    'order_id' => $orders->id
+                ]);
+                DB::commit();
+            } catch(Exception $ex) {
+                DB::rollBack();
+                abort(500);
+            }
         } else {
-            $cart->update([
-                'count' => $cart->count+1
-            ]);
+            try {
+                DB::beginTransaction();
+                $cart->update([
+                    'count' => $cart->count+1
+                ]);
+                DB::commit();
+            } catch(Exception $ex) {
+                DB::rollBack();
+                abort(500);
+            }
         }
 
         return new CartResource($cart);
@@ -47,11 +71,25 @@ class CartController extends Controller
             $cart = Cart::where('id', $request->id)->first();
             if (!is_null($cart)){
                 if($cart->count > 1) {
-                    $cart->update([
-                        'count' => $cart->count - 1
-                    ]);
+                    try {
+                        DB::beginTransaction();
+                        $cart->update([
+                            'count' => $cart->count - 1
+                        ]);
+                        DB::commit();
+                    } catch(Exception $ex) {
+                        DB::rollBack();
+                        abort(500);
+                    }
                 } else {
-                    $cart->delete();
+                    try {
+                        DB::beginTransaction();
+                        $cart->delete();
+                        DB::commit();
+                    } catch(Exception $ex) {
+                        DB::rollBack();
+                        abort(500);
+                    }
                 }
             } else {
                 return response()->json(['data' => 'null']);
