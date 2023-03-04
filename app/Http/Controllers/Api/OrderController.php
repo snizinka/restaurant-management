@@ -15,6 +15,36 @@ use Illuminate\Support\Facades\Auth;
 class OrderController extends Controller
 {
     use HttpResponses;
+
+    public function allOrders() {
+        $orders = Order::where('status', 1)->get();
+
+        return OrderResource::collection($orders);
+    }
+
+    public function orderDetails(string $id) {
+        $order = Order::where('id', $id)->first();
+
+        return new OrderResource($order);
+    }
+
+    public function assignDriver(Request $request, string $id) {
+        $order = Order::where('id', $id)->first();
+        $order->update([
+            'driver_id' => $request->input('driver'),
+            'status' => 2
+        ]);
+
+        return $request->input('driver');
+    }
+
+    public function removeOrder(string $id) {
+        $order = Order::where('id', $id)->first();
+        $order->delete();
+
+        return true;
+    }
+
     public function placeOrder(StoreOrderRequest $request) {
         $request->validated($request->all());
         $orders = Order::where('user_id', Auth::id())->where('status', 0)->first();

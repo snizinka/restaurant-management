@@ -19,7 +19,7 @@ class AuthController extends Controller
         $request->validated($request->all());
 
         if (!Auth::attempt($request->only('email', 'password'))) {
-            return $this->error('', 'Wrong auth data', 401);
+            return $this->error('401', 'Wrong auth data', 401);
         }
 
         $user = User::where('email', $request->email)->first();
