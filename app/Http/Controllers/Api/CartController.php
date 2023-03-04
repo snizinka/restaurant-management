@@ -23,7 +23,7 @@ class CartController extends Controller
             ]);
         }
 
-        $cart = Cart::where('dish_id', $request->id)->first();
+        $cart = Cart::where('dish_id', $request->id)->where('order_id', $orders->id)->first();
 
         if(is_null($cart)) {
             $cart = Cart::create([
@@ -59,5 +59,16 @@ class CartController extends Controller
         }
 
         return new CartResource($cart);
+    }
+
+    public function getCart() {
+        $orders = Order::where('user_id', Auth::id())->where('status', 0)->first();
+
+        if(is_null($orders)) {
+            return [];
+        }
+
+        $cart = Cart::where('order_id', $orders->id)->get();
+        return CartResource::collection($cart);
     }
 }
