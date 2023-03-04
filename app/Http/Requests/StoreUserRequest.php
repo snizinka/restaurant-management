@@ -20,4 +20,16 @@ class StoreUserRequest extends FormRequest
             'password' => ['required', 'confirmed', 'string', Password::default()]
         ];
     }
+
+    public function messages()
+    {
+        return [
+            'name.required' => 'Please enter your name.',
+            'email.required' => 'Please enter your email address.',
+            'email.email' => 'Please enter a valid email address.',
+            'password.required' => 'Please enter a password.',
+            'password.min' => 'Password must be at least 8 characters long.',
+            'password.confirmed' => 'Passwords do not match.',
+        ];
+    }
 }

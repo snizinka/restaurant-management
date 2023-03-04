@@ -57,12 +57,12 @@ class OrderController extends Controller
                 'status' => 1
             ]);
         } else {
-            return $this->error($orders, 'No orders found', 404);
+            return $this->error($orders, ['noorder' => 'No orders found'], 404);
         }
 
         return new OrderResource($orders);
     }
-// FIX ADD CART FUNCTION
+
     public function checkOrder() {
         $orders = Order::where('user_id', Auth::id())->where('status', '>', 0)->get();
 

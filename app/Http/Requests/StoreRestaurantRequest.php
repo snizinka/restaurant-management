@@ -20,4 +20,13 @@ class StoreRestaurantRequest extends FormRequest
                 'contacts' => ['required', 'max:255'],
             ];
     }
+
+    public function messages()
+    {
+        return [
+            'address.required' => "Please enter restaurant address.",
+            'name.required' => "Please enter restaurant name.",
+            'contacts.required' => "Please enter restaurant contacts.",
+        ];
+    }
 }

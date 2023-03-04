@@ -6,7 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreDishRequest;
 use App\Http\Resources\DishesResource;
 use App\Models\Dish;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class DishesController extends Controller
 {
@@ -33,16 +35,23 @@ class DishesController extends Controller
     }
     public function show(string $id)
     {
+        $dish = Dish::where('id', $id)->first();
+
+        if($dish == null) {
+            return [];
+        }
+
         return new DishesResource(
-            Dish::where('id', $id)->first()
+            $dish
         );
     }
     public function edit(string $id)
     {
         //
     }
-    public function update(Request $request, string $id)
+    public function update(StoreDishRequest $request, string $id)
     {
+        $request->validated($request->all());
         $dish = Dish::where('id', $id)->first();
         $data = [
             'name' => $request->input('name'),
@@ -54,7 +63,7 @@ class DishesController extends Controller
 
        $dish->update($data);
 
-        return $data;
+        return new DishesResource($dish);
     }
 
     public function destroy(string $id)

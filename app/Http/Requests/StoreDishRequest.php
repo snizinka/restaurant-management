@@ -21,4 +21,16 @@ class StoreDishRequest extends FormRequest
             'restaurant_id' => ['required', 'numeric']
         ];
     }
+
+    public function messages()
+    {
+        return [
+            'name.required' => "Please enter dish name.",
+            'price.required' => "Please enter dish price.",
+            'price.numeric' => "Please enter numeric dish price.",
+            'ingredients.required' => "Please enter dish ingredients.",
+            'category_id.required' => "Please enter dish category.",
+            'restaurant_id.required' => "Please enter dish restaurant.",
+        ];
+    }
 }

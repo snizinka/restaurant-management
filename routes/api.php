@@ -18,7 +18,7 @@ Route::post('/login', [AuthController::class, 'login']);
 
 Route::post('/register', [AuthController::class, 'register']);
 
-Route::group(['middleware' => ['auth:sanctum']], function () {
+Route::group(['middleware' => ['hasbearer']], function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/restaurant/{id}', [RestaurantController::class, 'dishesList']);
     Route::get('/cart', [CartController::class, 'getCart']);
@@ -43,4 +43,8 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get('/categories', [DishCategoryController::class, 'categories']);
     Route::get('/drivers', [DriverController::class, 'getAllDrivers']);
     Route::post('/drivers/{id}', [OrderController::class, 'assignDriver']);
+    Route::post('/drivers', [DriverController::class, 'addDriver']);
+    Route::get('/drivers/{id}', [DriverController::class, 'getDriver']);
+    Route::put('/drivers/{id}', [DriverController::class, 'updateDriver']);
+    Route::delete('/drivers/{id}', [DriverController::class, 'removeDriver']);
 });

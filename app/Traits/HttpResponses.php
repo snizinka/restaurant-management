@@ -14,7 +14,7 @@ trait HttpResponses {
         return response()->json([
             'status' => 'An error has occured',
             'message' => $message,
-            'data' => $data
+            'errors' => $message
         ], $code);
     }
 }
