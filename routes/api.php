@@ -1,25 +1,28 @@
 <?php
 
-use App\Http\Controllers\Api\AuthController;
-use App\Http\Controllers\Api\DishesController;
-use App\Http\Controllers\Api\RestaurantController;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\Api\Auth\AuthController;
 use App\Http\Controllers\Api\CartController;
-use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\DishCategoryController;
+use App\Http\Controllers\Api\DishesController;
 use App\Http\Controllers\Api\DriverController;
+use App\Http\Controllers\Api\OrderController;
+use App\Http\Controllers\Api\RestaurantController;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Route;
 
 //Route::middleware('auth:api')->get('/user', function (Request $request) {
   //  return $request->user();
 //});
 
-Auth::routes(['verify' => true]);
+Route::get('/emai/verify/{id}', [\App\Http\Controllers\VerifyEmailController::class, 'verify'])->name('verify');
+
+Route::get('/emai/reset/{id}', [\App\Http\Controllers\VerifyEmailController::class, 'reset'])->name('reset');
 
 Route::post('/login', [AuthController::class, 'login']);
 
 Route::post('/register', [AuthController::class, 'register']);
+
+Route::post('/reset', [AuthController::class, 'reset']);
 
 Route::group(['middleware' => ['hasbearer']], function () {
     Route::post('/logout', [AuthController::class, 'logout']);
@@ -51,4 +54,5 @@ Route::group(['middleware' => ['hasbearer']], function () {
     Route::get('/drivers/{id}', [DriverController::class, 'getDriver']);
     Route::put('/drivers/{id}', [DriverController::class, 'updateDriver']);
     Route::delete('/drivers/{id}', [DriverController::class, 'removeDriver']);
+    Route::put('/reset', [AuthController::class, 'confirmReset']);
 });
