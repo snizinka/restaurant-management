@@ -21,11 +21,25 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::post('/reset', [AuthController::class, 'reset']);
 
 Route::group(['middleware' => ['hasbearer']], function () {
+
+    Route::group(['middleware' => ['isadmin']], function () {
+        Route::post('/dishes', [DishesController::class, 'store']);
+        Route::post('/dishes/{id}/update', [DishesController::class, 'update']);
+        Route::delete('/dishes/{id}', [DishesController::class, 'destroy']);
+        Route::post('/restaurants/{id}', [RestaurantController::class, 'updateRestaurant']);
+        Route::delete('/restaurants/{id}', [RestaurantController::class, 'removeRestaurant']);
+        Route::post('/restaurants', [RestaurantController::class, 'addRestaurant']);
+        Route::post('/drivers/{id}', [OrderController::class, 'assignDriver']);
+        Route::post('/drivers', [DriverController::class, 'addDriver']);
+        Route::put('/drivers/{id}', [DriverController::class, 'updateDriver']);
+        Route::delete('/drivers/{id}', [DriverController::class, 'removeDriver']);
+    });
+
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/restaurant/{id}', [RestaurantController::class, 'dishesList']);
     Route::get('/cart', [CartController::class, 'getCart']);
     Route::post('/cart/add', [CartController::class, 'addToCart']);
-    Route::post('/cart/remove', [CartController::class, 'removeFromCart']);
+    Route::delete('/cart/remove', [CartController::class, 'removeFromCart']);
     Route::get('/orders', [OrderController::class, 'allOrders']);
     Route::get('/orders/{id}', [OrderController::class, 'orderDetails']);
     Route::delete('/orders/{id}', [OrderController::class, 'removeOrder']);
@@ -34,21 +48,11 @@ Route::group(['middleware' => ['hasbearer']], function () {
     Route::get('/order/averagecost', [OrderController::class, 'averageOrderCost']);
     Route::get('/order/averagepaid', [OrderController::class, 'averageDriverPaid']);
     Route::get('/dishes', [DishesController::class, 'index']);
-    Route::post('/dishes', [DishesController::class, 'store']);
     Route::get('/dishes/{id}', [DishesController::class, 'show']);
-    Route::post('/dishes/{id}/update', [DishesController::class, 'update']);
-    Route::delete('/dishes/{id}', [DishesController::class, 'destroy']);
     Route::get('/restaurants', [RestaurantController::class, 'restaurantList']);
     Route::get('/restaurants/{id}', [RestaurantController::class, 'getRestaurant']);
-    Route::post('/restaurants/{id}', [RestaurantController::class, 'updateRestaurant']);
-    Route::delete('/restaurants/{id}', [RestaurantController::class, 'removeRestaurant']);
-    Route::post('/restaurants', [RestaurantController::class, 'addRestaurant']);
     Route::get('/categories', [DishCategoryController::class, 'categories']);
     Route::get('/drivers', [DriverController::class, 'getAllDrivers']);
-    Route::post('/drivers/{id}', [OrderController::class, 'assignDriver']);
-    Route::post('/drivers', [DriverController::class, 'addDriver']);
     Route::get('/drivers/{id}', [DriverController::class, 'getDriver']);
-    Route::put('/drivers/{id}', [DriverController::class, 'updateDriver']);
-    Route::delete('/drivers/{id}', [DriverController::class, 'removeDriver']);
     Route::put('/reset', [AuthController::class, 'confirmReset']);
 });

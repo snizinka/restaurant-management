@@ -97,7 +97,7 @@ class OrderController extends Controller
             ->leftJoin('carts as ct', 'ct.order_id', '=', 'od.id')
             ->leftJoin('dishes as ds', 'ct.dish_id', '=', 'ds.id')
             ->selectRaw('ROUND(sum(ds.price * ct.count) / count(ds.price), 2) as price, CAST(od.created_at AS date) as date')
-            ->whereRaw('DATEDIFF(current_date, od.created_at) between 0 and 30 AND od.status > 0')
+            ->whereRaw('DATEDIFF(current_date, od.created_at) between 0 and 30 AND od.status > 0 AND ds.id IS NOT NULL')
             ->groupBy(DB::raw('CAST(od.created_at AS date)'))
             ->get();
 
@@ -109,10 +109,13 @@ class OrderController extends Controller
             ->leftJoin('carts as ct', 'ct.order_id', '=', 'od.id')
             ->leftJoin('drivers as ds', 'od.driver_id', '=', 'ds.id')
             ->selectRaw('sum(15) as "paid", count(*) as "deliveries", CAST(od.created_at AS date) as "date"')
-            ->whereRaw('DATEDIFF(current_date, od.created_at) between 0 and 30 AND od.status > 1')
+            ->whereRaw('DATEDIFF(current_date, od.created_at) between 0 and 30 AND od.status > 1 AND ct.order_id = od.id')
             ->groupBy(DB::raw('CAST(od.created_at AS date)'))
             ->get();
 
+        if ($orders->avg('paid') == null) {
+            return $this->success(['average' => 0]);
+        }
         $result = $orders->avg('paid') / $orders->count();
         $result = round($result, 2);
 
