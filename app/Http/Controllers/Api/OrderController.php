@@ -11,6 +11,7 @@ use App\Traits\HttpResponses;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class OrderController extends Controller
 {
@@ -70,20 +71,30 @@ class OrderController extends Controller
     }
 
     public function averageOrderCost() {
-        $orders = Order::whereRaw("DATEDIFF('" . Carbon::now() . "',created_at)  between 0 and 30 ")->where('status', '>', 0)->get();
+        $orders = DB::table('orders as od')
+            ->leftJoin('carts as ct', 'ct.order_id', '=', 'od.id')
+            ->leftJoin('dishes as ds', 'ct.dish_id', '=', 'ds.id')
+            ->selectRaw('ROUND(sum(ds.price * ct.count) / count(ds.price), 2) as price, CAST(od.created_at AS date) as date')
+            ->whereRaw('DATEDIFF(current_date, od.created_at) between 0 and 30 AND od.status > 0')
+            ->groupBy(DB::raw('CAST(od.created_at AS date)'))
+            ->get();
 
-        $average = [];
-        foreach ($orders as $order) {
-            $cartAvg = 0;
-            foreach ($order->carts as $cart) {
-                $cartAvg += $cart->dish->price * $cart->count;
-            }
+        return $this->success(['average' => $orders]);
+    }
 
-            $average[$order->id] = $cartAvg;
-            //array_push($average, $cartAvg);
-        }
+    public function averageDriverPaid() {
+        $orders = DB::table('orders as od')
+            ->leftJoin('carts as ct', 'ct.order_id', '=', 'od.id')
+            ->leftJoin('drivers as ds', 'od.driver_id', '=', 'ds.id')
+            ->selectRaw('sum(15) as "paid", count(*) as "deliveries", CAST(od.created_at AS date) as "date"')
+            ->whereRaw('DATEDIFF(current_date, od.created_at) between 0 and 30 AND od.status > 1')
+            ->groupBy(DB::raw('CAST(od.created_at AS date)'))
+            ->get();
 
-        return $average;
+        $result = $orders->avg('paid') / $orders->count();
+        $result = round($result, 2);
+
+        return $this->success(['average' => $result]);
     }
 }
 

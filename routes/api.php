@@ -5,14 +5,17 @@ use App\Http\Controllers\Api\DishesController;
 use App\Http\Controllers\Api\RestaurantController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Api\CartController;
 use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\DishCategoryController;
 use App\Http\Controllers\Api\DriverController;
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
-});
+//Route::middleware('auth:api')->get('/user', function (Request $request) {
+  //  return $request->user();
+//});
+
+Auth::routes(['verify' => true]);
 
 Route::post('/login', [AuthController::class, 'login']);
 
@@ -30,6 +33,7 @@ Route::group(['middleware' => ['hasbearer']], function () {
     Route::post('/order/place', [OrderController::class, 'placeOrder']);
     Route::get('/order/status', [OrderController::class, 'checkOrder']);
     Route::get('/order/averagecost', [OrderController::class, 'averageOrderCost']);
+    Route::get('/order/averagepaid', [OrderController::class, 'averageDriverPaid']);
     Route::get('/dishes', [DishesController::class, 'index']);
     Route::post('/dishes', [DishesController::class, 'store']);
     Route::get('/dishes/{id}', [DishesController::class, 'show']);
