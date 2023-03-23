@@ -93,10 +93,11 @@ class CartController extends Controller
     }
 
     public function removeFromCart(Request $request) {
-        $orders = Order::where('user_id', Auth::id())->where('status', 0)->first();
+        $generalOrder = GeneralOrder::where('user_id', Auth::id())->where('status', 0)->first();
 
-        if(!is_null($orders)) {
+        if(!is_null($generalOrder)) {
             $order_item = OrderItem::where('id', $request->id)->first();
+
             if (!is_null($order_item)){
                 if($order_item->count > 1) {
                     try {
