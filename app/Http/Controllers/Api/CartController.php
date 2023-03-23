@@ -42,6 +42,10 @@ class CartController extends Controller
         if(is_null($order_item)) {
             try {
                 DB::beginTransaction();
+                $dish = Dish::where('id', $request->id)->first();
+                $order_item_status = $dish->availability == 1 ? 'available' : 'unavailable';
+
+                // $dish->updated_at
                 $order_item = OrderItem::create([
                     'count' => 1,
                     'dish_id' => $request->id,
