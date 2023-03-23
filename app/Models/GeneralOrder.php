@@ -13,6 +13,9 @@ class GeneralOrder extends Model
     protected $fillable = ['user_id', 'order_number', 'driver_id', 'status', 'address', 'phone', 'username'];
     protected $dates = ['deleted_at'];
 
+    public function cart() {
+        return $this->hasOne(Cart::class);
+    }
 
     public function orders() {
         return $this->hasMany(Order::class, 'general_orders_id', 'id');

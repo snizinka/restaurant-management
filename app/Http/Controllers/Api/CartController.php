@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\CartResource;
+use App\Http\Resources\OrderItemResource;
 use App\Models\Cart;
 use App\Models\Dish;
 use App\Models\GeneralOrder;
@@ -55,9 +56,20 @@ class CartController extends Controller
         where('restaurant_id', $dish->restaurant_id)->first();
 
         if (is_null($orders)) {
+            $previous = DB::table('orders as o')
+                ->join('order_items as oi', 'oi.order_id', '=', 'o.id')
+                ->join('dishes as d', function ($join) use ($dish) {
+                    $join->on('d.id', '=', 'oi.dish_id')
+                        ->where('d.restaurant_id', '=', $dish->restaurant_id);
+                })
+                ->where('o.general_orders_id', '=', $generalOrder->id)
+                ->select('o.order_number')->orderBy('order_number', 'desc')
+                ->first();
+
             $orders = Order::create([
                 'general_orders_id' => $generalOrder->id,
-                'restaurant_id' => $dish->restaurant_id
+                'restaurant_id' => $dish->restaurant_id,
+                'order_number' => $this->nextUnique($dish->restaurant_id, $previous == null ? null : $previous->order_number)
             ]);
         }
 
@@ -89,7 +101,7 @@ class CartController extends Controller
             }
         }
 
-        return new CartResource($order_item);
+        return new OrderItemResource($order_item);
     }
 
     public function removeFromCart(Request $request) {
@@ -140,7 +152,7 @@ class CartController extends Controller
     }
 
     public function deleteCart() {
-        $orders = Order::where('user_id', Auth::id())->where('status', 0)->first();
+        $orders = GeneralOrder::where('user_id', Auth::id())->first();
 
         if(is_null($orders)) {
             return [];

@@ -13,7 +13,7 @@ class Cart extends Model
     protected $fillable = ['general_order_id'];
     protected $dates = ['deleted_at'];
 
-    public function generalOrder(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function generalOrder()
     {
         return $this->belongsTo(GeneralOrder::class, 'general_order_id', 'id');
     }
