@@ -113,4 +113,16 @@ class CartController extends Controller
         $cart = Cart::where('order_id', $orders->id)->get();
         return CartResource::collection($cart);
     }
+
+    public function deleteCart() {
+        $orders = Order::where('user_id', Auth::id())->where('status', 0)->first();
+
+        if(is_null($orders)) {
+            return [];
+        }
+
+        $cart = Cart::where('order_id', $orders->id)->get();
+        $cart->delete();
+        return true;
+    }
 }
