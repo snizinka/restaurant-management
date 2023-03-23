@@ -9,5 +9,5 @@ class DishCategory extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['id', 'name'];
+    protected $fillable = ['id', 'name', 'deleted_at'];
 }

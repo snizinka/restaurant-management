@@ -9,7 +9,7 @@ class Order extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['user_id', 'driver_id', 'status', 'address', 'phone', 'username'];
+    protected $fillable = ['user_id', 'driver_id', 'status', 'address', 'phone', 'username', 'deleted_at'];
 
     public function driver() {
         return $this->belongsTo(Driver::class);

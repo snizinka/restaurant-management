@@ -9,7 +9,7 @@ class Cart extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['order_id'];
+    protected $fillable = ['order_id', 'deleted_at'];
 
     public function order(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {

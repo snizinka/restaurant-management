@@ -9,5 +9,5 @@ class Driver extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'lastname'];
+    protected $fillable = ['name', 'lastname', 'deleted_at'];
 }
