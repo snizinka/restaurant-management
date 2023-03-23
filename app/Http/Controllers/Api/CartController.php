@@ -7,6 +7,7 @@ use App\Http\Resources\CartResource;
 use App\Models\Cart;
 use App\Models\Dish;
 use App\Models\Order;
+use App\Models\OrderItem;
 use App\Models\Restaurant;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -26,6 +27,9 @@ class CartController extends Controller
                     'status' => 0,
                     'user_id' => Auth::id()
                 ]);
+                $carts = Cart::create([
+                    'order_id' => $orders->id,
+                ]);
                 DB::commit();
             } catch(Exception $ex) {
                 DB::rollBack();
@@ -33,12 +37,13 @@ class CartController extends Controller
             }
         }
 
-        $cart = Cart::where('dish_id', $request->id)->where('order_id', $orders->id)->first();
+        $order_item = OrderItem::where('dish_id', $request->id)->where('order_id', $orders->id)->first();
+        //$cart = Cart::where('dish_id', $request->id)->where('order_id', $orders->id)->first();
 
-        if(is_null($cart)) {
+        if(is_null($order_item)) {
             try {
                 DB::beginTransaction();
-                $cart = Cart::create([
+                $order_item = OrderItem::create([
                     'count' => 1,
                     'dish_id' => $request->id,
                     'order_id' => $orders->id
@@ -51,8 +56,8 @@ class CartController extends Controller
         } else {
             try {
                 DB::beginTransaction();
-                $cart->update([
-                    'count' => $cart->count+1
+                $order_item->update([
+                    'count' => $order_item->count+1
                 ]);
                 DB::commit();
             } catch(Exception $ex) {
@@ -61,7 +66,7 @@ class CartController extends Controller
             }
         }
 
-        return new CartResource($cart);
+        return new CartResource($order_item);
     }
 
     public function removeFromCart(Request $request) {
