@@ -13,9 +13,9 @@ class Cart extends Model
     protected $fillable = ['general_order_id'];
     protected $dates = ['deleted_at'];
 
-    public function generalorder(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function generalOrder(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
-        return $this->belongsTo(GeneralOrder::class);
+        return $this->belongsTo(GeneralOrder::class, 'general_order_id', 'id');
     }
 
 }

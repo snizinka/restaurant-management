@@ -129,13 +129,13 @@ class CartController extends Controller
     }
 
     public function getCart() {
-        $orders = Order::where('user_id', Auth::id())->where('status', 0)->first();
+        $generalOrder = GeneralOrder::where('user_id', Auth::id())->where('status', 0)->first();
 
-        if(is_null($orders)) {
+        if(is_null($generalOrder)) {
             return [];
         }
 
-        $cart = Cart::where('order_id', $orders->id)->get();
+        $cart = Cart::where('general_order_id', $generalOrder->id)->get();
         return CartResource::collection($cart);
     }
 
