@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\CartResource;
 use App\Models\Cart;
 use App\Models\Dish;
+use App\Models\GeneralOrder;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Restaurant;
@@ -17,18 +18,32 @@ use PHPUnit\Event\Exception;
 
 class CartController extends Controller
 {
-    public function addToCart(Request $request) {
-        $orders = Order::where('user_id', Auth::id())->where('status', 0)->first();
+    function nextUnique($restaurant_id, $previous_unique) {
+        if(is_null($previous_unique)) {
+            return (integer)($restaurant_id.'1');
+        }
 
-        if(is_null($orders)) {
+        $position = strpos((string)$previous_unique, (string)$restaurant_id);
+        $result = substr($previous_unique, $position + strlen($restaurant_id));
+        $newUnique = (integer)$result + 1;
+
+        return (integer)$restaurant_id.$newUnique;
+    }
+
+    public function addToCart(Request $request) {
+        $dish = Dish::where('id', $request->id)->first();
+        $generalOrder = GeneralOrder::where('user_id', Auth::id())->where('status', 0)->first();
+
+        if(is_null($generalOrder)) {
             try {
                 DB::beginTransaction();
-                $orders = Order::create([
+                $generalOrder = GeneralOrder::create([
                     'status' => 0,
                     'user_id' => Auth::id()
                 ]);
-                $carts = Cart::create([
-                    'order_id' => $orders->id,
+
+                Cart::create([
+                    'general_order_id' => $generalOrder->id,
                 ]);
                 DB::commit();
             } catch(Exception $ex) {
@@ -36,16 +51,21 @@ class CartController extends Controller
                 abort(500);
             }
         }
+        $orders = Order::where('general_orders_id', $generalOrder->id)->
+        where('restaurant_id', $dish->restaurant_id)->first();
+
+        if (is_null($orders)) {
+            $orders = Order::create([
+                'general_orders_id' => $generalOrder->id,
+                'restaurant_id' => $dish->restaurant_id
+            ]);
+        }
 
         $order_item = OrderItem::where('dish_id', $request->id)->where('order_id', $orders->id)->first();
 
         if(is_null($order_item)) {
             try {
                 DB::beginTransaction();
-                $dish = Dish::where('id', $request->id)->first();
-                $order_item_status = $dish->availability == 1 ? 'available' : 'unavailable';
-
-                // $dish->updated_at
                 $order_item = OrderItem::create([
                     'count' => 1,
                     'dish_id' => $request->id,

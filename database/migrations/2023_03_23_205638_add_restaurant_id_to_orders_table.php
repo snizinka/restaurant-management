@@ -9,13 +9,13 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('orders', function (Blueprint $table) {
-            $table->softDeletes();
+            $table->unsignedBigInteger('restaurant_id')->foreign('restaurant_id')->references('id')->on('restaurants')->onDelete('cascade');
         });
     }
     public function down(): void
     {
         Schema::table('orders', function (Blueprint $table) {
-            $table->dropSoftDeletes();
+            $table->dropColumn('restaurant_id');
         });
     }
 };

@@ -10,16 +10,8 @@ class Order extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $fillable = ['user_id', 'driver_id', 'status', 'address', 'phone', 'username'];
+    protected $fillable = ['general_orders_id', 'order_number', 'restaurant_id'];
     protected $dates = ['deleted_at'];
-
-    public function driver() {
-        return $this->belongsTo(Driver::class);
-    }
-
-    public function user() {
-        return $this->belongsTo(User::class);
-    }
 
     public function orderItems() {
         return $this->hasMany(OrderItem::class);

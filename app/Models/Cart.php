@@ -10,12 +10,12 @@ class Cart extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $fillable = ['order_id'];
+    protected $fillable = ['general_order_id'];
     protected $dates = ['deleted_at'];
 
-    public function order(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function generalorder(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
-        return $this->belongsTo(Order::class);
+        return $this->belongsTo(GeneralOrder::class);
     }
 
 }
