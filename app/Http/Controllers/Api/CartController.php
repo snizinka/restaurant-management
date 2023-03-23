@@ -38,7 +38,6 @@ class CartController extends Controller
         }
 
         $order_item = OrderItem::where('dish_id', $request->id)->where('order_id', $orders->id)->first();
-        //$cart = Cart::where('dish_id', $request->id)->where('order_id', $orders->id)->first();
 
         if(is_null($order_item)) {
             try {
@@ -73,13 +72,13 @@ class CartController extends Controller
         $orders = Order::where('user_id', Auth::id())->where('status', 0)->first();
 
         if(!is_null($orders)) {
-            $cart = Cart::where('id', $request->id)->first();
-            if (!is_null($cart)){
-                if($cart->count > 1) {
+            $order_item = OrderItem::where('id', $request->id)->first();
+            if (!is_null($order_item)){
+                if($order_item->count > 1) {
                     try {
                         DB::beginTransaction();
-                        $cart->update([
-                            'count' => $cart->count - 1
+                        $order_item->update([
+                            'count' => $order_item->count - 1
                         ]);
                         DB::commit();
                     } catch(Exception $ex) {
@@ -89,7 +88,7 @@ class CartController extends Controller
                 } else {
                     try {
                         DB::beginTransaction();
-                        $cart->delete();
+                        $order_item->delete();
                         DB::commit();
                     } catch(Exception $ex) {
                         DB::rollBack();
@@ -101,7 +100,7 @@ class CartController extends Controller
             }
         }
 
-        return new CartResource($cart);
+        return new CartResource($order_item);
     }
 
     public function getCart() {
