@@ -11,9 +11,9 @@ class OrderItem extends Model
 
     protected $fillable = ['order_id', 'dish_id', 'count', 'availability'];
 
-    public function order(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function order()
     {
-        return $this->belongsTo(Order::class);
+        return $this->belongsTo(Order::class, 'order_id', 'id');
     }
 
     public function dish() {
