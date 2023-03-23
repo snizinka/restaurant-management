@@ -30,6 +30,6 @@ class VerifyEmailController extends Controller
             abort(401);
         }
 
-        return redirect('http://127.0.0.1:8080'.'/resetpassword'));
+        return redirect('http://127.0.0.1:8080'.'/resetpassword');
     }
 }
