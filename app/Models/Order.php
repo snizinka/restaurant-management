@@ -4,12 +4,14 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Order extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
-    protected $fillable = ['user_id', 'driver_id', 'status', 'address', 'phone', 'username', 'deleted_at'];
+    protected $fillable = ['user_id', 'driver_id', 'status', 'address', 'phone', 'username'];
+    protected $dates = ['deleted_at'];
 
     public function driver() {
         return $this->belongsTo(Driver::class);
