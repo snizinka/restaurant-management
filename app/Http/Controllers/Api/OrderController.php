@@ -31,7 +31,7 @@ class OrderController extends Controller
     }
 
     public function assignDriver(Request $request, string $id) {
-        $order = Order::where('id', $id)->first();
+        $order = GeneralOrder::where('id', $id)->first();
 
         try {
             DB::beginTransaction();
