@@ -65,7 +65,7 @@ class OrderController extends Controller
 
     public function placeOrder(StoreOrderRequest $request) {
         $request->validated($request->all());
-        $orders = Order::where('user_id', Auth::id())->where('status', 0)->first();
+        $orders = GeneralOrder::where('user_id', Auth::id())->where('status', 0)->first();
 
         if (!is_null($orders)) {
             try {
@@ -85,7 +85,7 @@ class OrderController extends Controller
             return $this->error($orders, ['noorder' => 'No orders found'], 404);
         }
 
-        return new OrderResource($orders);
+        return new GeneralOrderResource($orders);
     }
 
     public function checkOrder() {
