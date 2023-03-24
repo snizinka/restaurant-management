@@ -25,9 +25,9 @@ class OrderController extends Controller
     }
 
     public function orderDetails(string $id) {
-        $order = Order::where('id', $id)->first();
+        $order = GeneralOrder::where('id', $id)->first();
 
-        return new OrderResource($order);
+        return new GeneralOrderResource($order);
     }
 
     public function assignDriver(Request $request, string $id) {
@@ -89,9 +89,9 @@ class OrderController extends Controller
     }
 
     public function checkOrder() {
-        $orders = Order::where('user_id', Auth::id())->where('status', '>', 0)->get();
+        $orders = GeneralOrder::where('user_id', Auth::id())->where('status', '>', 0)->get();
 
-        return OrderResource::collection($orders);
+        return GeneralOrderResource::collection($orders);
     }
 
     public function averageOrderCost() {
