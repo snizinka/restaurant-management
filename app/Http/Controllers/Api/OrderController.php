@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreOrderRequest;
+use App\Http\Resources\GeneralOrderResource;
 use App\Http\Resources\OrderResource;
+use App\Models\GeneralOrder;
 use App\Models\Order;
 use App\Traits\HttpResponses;
 use Illuminate\Http\Request;
@@ -17,9 +19,9 @@ class OrderController extends Controller
     use HttpResponses;
 
     public function allOrders() {
-        $orders = Order::where('status', 1)->get();
+        $orders = GeneralOrder::where('status', 1)->get();
 
-        return OrderResource::collection($orders);
+        return GeneralOrderResource::collection($orders);
     }
 
     public function orderDetails(string $id) {
