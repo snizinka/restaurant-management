@@ -62,7 +62,7 @@ class CartController extends Controller
                     $join->on('d.id', '=', 'oi.dish_id')
                         ->where('d.restaurant_id', '=', $dish->restaurant_id);
                 })
-                ->where('o.general_orders_id', '=', $generalOrder->id)
+                //->where('o.general_orders_id', '=', $generalOrder->id)
                 ->select('o.order_number')->orderBy('order_number', 'desc')
                 ->first();
 
