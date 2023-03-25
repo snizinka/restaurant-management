@@ -8,6 +8,7 @@ use App\Http\Resources\DishesResource;
 use App\Http\Resources\RestaurantResource;
 use App\Models\Dish;
 use App\Models\Restaurant;
+use App\Services\Restaurant\RestaurantFacade;
 use App\Traits\HttpResponses;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -17,7 +18,7 @@ class RestaurantController extends Controller
 {
     use HttpResponses;
     public function dishesList(Request $request) {
-        $dishes = Dish::where('restaurant_id', $request->id)->get();
+        $dishes = Dish::where('restaurant_id', $request->id)->get(); // DISHES Service
 
         return DishesResource::collection($dishes);
     }
@@ -40,27 +41,13 @@ class RestaurantController extends Controller
 
     public function updateRestaurant(StoreRestaurantRequest $request, string $id) {
         $request->validated($request->all());
-        $restaurant = Restaurant::where('id', $id)->first();
-
-        try {
-            DB::beginTransaction();
-            $restaurant->update([
-                'name' => $request->input('name'),
-                'address' => $request->input('address'),
-                'contacts' => $request->input('contacts')
-            ]);
-            DB::commit();
-        } catch(Exception $ex) {
-            DB::rollBack();
-            abort(500);
-        }
+        $restaurant = RestaurantFacade::update($request, $id);
 
         return new RestaurantResource($restaurant);
     }
 
     public function removeRestaurant(string $id) {
-        $restaurant = Restaurant::where('id', $id)->first();
-        $restaurant->delete();
+        RestaurantFacade::delete($id);
 
         return true;
     }
@@ -70,11 +57,7 @@ class RestaurantController extends Controller
 
         try {
             DB::beginTransaction();
-            $restaurant = Restaurant::create([
-                'name' => $request->input('name'),
-                'address' => $request->input('address'),
-                'contacts' => $request->input('contacts'),
-            ]);
+            $restaurant = RestaurantFacade::create($request);
             DB::commit();
         } catch(Exception $ex) {
             DB::rollBack();
