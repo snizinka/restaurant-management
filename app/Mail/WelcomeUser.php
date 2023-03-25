@@ -24,7 +24,7 @@ class WelcomeUser extends Mailable
     {
         return new Envelope(
             from: new Address('snizinkavolshebna@gmail.com', 'OSKANS'),
-            subject: 'Order Shipped',
+            subject: 'OrderService Shipped',
         );
     }
 

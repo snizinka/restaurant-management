@@ -123,5 +123,13 @@ class OrderController extends Controller
 
         return $this->success(['average' => $result]);
     }
+
+    public function duplicateOrder(string $id) {
+        $generalOrder = GeneralOrder::where('id', $id)->first();
+        $orders = Order::where('general_orders_id', $generalOrder->id)->get();
+        foreach ($orders as $order) {
+
+        }
+    }
 }
 

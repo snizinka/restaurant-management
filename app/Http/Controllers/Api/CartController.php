@@ -12,6 +12,11 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Restaurant;
 use App\Models\User;
+use App\Services\Cart\CartFacade;
+use App\Services\GeneralOrder\GeneralOrderFacade;
+use App\Services\Order\OrderFacade;
+use App\Services\Order\OrderService;
+use App\Services\OrderItem\OrderItemFacade;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -19,18 +24,6 @@ use PHPUnit\Event\Exception;
 
 class CartController extends Controller
 {
-    function nextUnique($restaurant_id, $previous_unique) {
-        if(is_null($previous_unique)) {
-            return (integer)($restaurant_id.'1');
-        }
-
-        $position = strpos((string)$previous_unique, (string)$restaurant_id);
-        $result = substr($previous_unique, $position + strlen($restaurant_id));
-        $newUnique = (integer)$result + 1;
-
-        return (integer)$restaurant_id.$newUnique;
-    }
-
     public function addToCart(Request $request) {
         $dish = Dish::where('id', $request->id)->first();
         $generalOrder = GeneralOrder::where('user_id', Auth::id())->where('status', 0)->first();
@@ -38,14 +31,8 @@ class CartController extends Controller
         if(is_null($generalOrder)) {
             try {
                 DB::beginTransaction();
-                $generalOrder = GeneralOrder::create([
-                    'status' => 0,
-                    'user_id' => Auth::id()
-                ]);
-
-                Cart::create([
-                    'general_order_id' => $generalOrder->id,
-                ]);
+                $generalOrder = GeneralOrderFacade::create();
+                CartFacade::create($generalOrder->id);
                 DB::commit();
             } catch(Exception $ex) {
                 DB::rollBack();
@@ -56,21 +43,7 @@ class CartController extends Controller
         where('restaurant_id', $dish->restaurant_id)->first();
 
         if (is_null($orders)) {
-            $previous = DB::table('orders as o')
-                ->join('order_items as oi', 'oi.order_id', '=', 'o.id')
-                ->join('dishes as d', function ($join) use ($dish) {
-                    $join->on('d.id', '=', 'oi.dish_id')
-                        ->where('d.restaurant_id', '=', $dish->restaurant_id);
-                })
-                //->where('o.general_orders_id', '=', $generalOrder->id)
-                ->select('o.order_number')->orderBy('order_number', 'desc')
-                ->first();
-
-            $orders = Order::create([
-                'general_orders_id' => $generalOrder->id,
-                'restaurant_id' => $dish->restaurant_id,
-                'order_number' => $this->nextUnique($dish->restaurant_id, $previous == null ? null : $previous->order_number)
-            ]);
+            $orders = OrderFacade::create($generalOrder->id, $dish);
         }
 
         $order_item = OrderItem::where('dish_id', $request->id)->where('order_id', $orders->id)->first();
@@ -78,11 +51,7 @@ class CartController extends Controller
         if(is_null($order_item)) {
             try {
                 DB::beginTransaction();
-                $order_item = OrderItem::create([
-                    'count' => 1,
-                    'dish_id' => $request->id,
-                    'order_id' => $orders->id
-                ]);
+                $order_item = OrderItemFacade::create($request->id, $orders->id);
                 DB::commit();
             } catch(Exception $ex) {
                 DB::rollBack();
@@ -91,9 +60,7 @@ class CartController extends Controller
         } else {
             try {
                 DB::beginTransaction();
-                $order_item->update([
-                    'count' => $order_item->count+1
-                ]);
+                OrderItemFacade::increaseOrderCount($order_item->id);
                 DB::commit();
             } catch(Exception $ex) {
                 DB::rollBack();
@@ -108,46 +75,14 @@ class CartController extends Controller
         $generalOrder = GeneralOrder::where('user_id', Auth::id())->where('status', 0)->first();
 
         if(!is_null($generalOrder)) {
-            $order_item = OrderItem::where('id', $request->id)->first();
-
-            if (!is_null($order_item)){
-                if($order_item->count > 1) {
-                    try {
-                        DB::beginTransaction();
-                        $order_item->update([
-                            'count' => $order_item->count - 1
-                        ]);
-                        DB::commit();
-                    } catch(Exception $ex) {
-                        DB::rollBack();
-                        abort(500);
-                    }
-                } else {
-                    try {
-                        DB::beginTransaction();
-                        $order_item->delete();
-                        DB::commit();
-                    } catch(Exception $ex) {
-                        DB::rollBack();
-                        abort(500);
-                    }
-                }
-            } else {
-                return response()->json(['data' => 'null']);
-            }
+            $order_item = OrderItemFacade::decreaseOrderCount($request->id);
         }
 
-        return new CartResource($order_item);
+        return new OrderItemResource($order_item);
     }
 
     public function getCart() {
-        $generalOrder = GeneralOrder::where('user_id', Auth::id())->where('status', 0)->first();
-
-        if(is_null($generalOrder)) {
-            return [];
-        }
-
-        $cart = Cart::where('general_order_id', $generalOrder->id)->get();
+        $cart = CartFacade::getCart();
         return CartResource::collection($cart);
     }
 
