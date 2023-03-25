@@ -23,7 +23,7 @@ class DishesController extends Controller
         );
     }
 
-    public function store(StoreDishRequest $request)
+    public function store(StoreDishRequest $request): DishesResource
     {
         $request->validated($request->all());
 
@@ -54,7 +54,7 @@ class DishesController extends Controller
     {
         //
     }
-    public function update(StoreDishRequest $request, string $id)
+    public function update(StoreDishRequest $request, string $id): DishesResource
     {
         $request->validated($request->all());
 

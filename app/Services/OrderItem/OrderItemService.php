@@ -2,6 +2,7 @@
 
 namespace App\Services\OrderItem;
 
+use App\Http\Resources\OrderItemResource;
 use App\Models\OrderItem;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
@@ -54,7 +55,10 @@ class OrderItemService
     public function decreaseOrderCount($orderItem_id) {
         $order_item = OrderItem::where('id', $orderItem_id)->first();
         if (is_null($order_item)) {
-            return response()->json(['data' => 'null']);
+            return response(
+                ["id" => $orderItem_id, "deleted" => false, "error" => "Couldn't delete the order item"],
+                ResponseAlias::HTTP_BAD_REQUEST
+            );
         }
 
         if (!is_null($order_item)){
@@ -83,6 +87,6 @@ class OrderItemService
             return response()->json(['data' => 'null']);
         }
 
-        return $order_item;
+        return new OrderItemResource($order_item);
     }
 }

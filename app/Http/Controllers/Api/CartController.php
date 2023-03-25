@@ -21,11 +21,19 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use PHPUnit\Event\Exception;
+use Symfony\Component\HttpFoundation\Response as ResponseAlias;
 
 class CartController extends Controller
 {
     public function addToCart(Request $request) {
         $dish = Dish::where('id', $request->id)->first();
+
+        if (is_null($dish)) {
+            return response(
+                ["id" => $request->id, "error" => "Couldn't find the dish"],
+                ResponseAlias::HTTP_BAD_REQUEST
+            );
+        }
         $generalOrder = GeneralOrder::where('user_id', Auth::id())->where('status', 0)->first();
 
         if(is_null($generalOrder)) {
@@ -76,9 +84,11 @@ class CartController extends Controller
 
         if(!is_null($generalOrder)) {
             $order_item = OrderItemFacade::decreaseOrderCount($request->id);
+        }else {
+            return [];
         }
 
-        return new OrderItemResource($order_item);
+        return $order_item;
     }
 
     public function getCart() {
