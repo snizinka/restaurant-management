@@ -7,7 +7,7 @@ use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Facade;
 /**
  * @method static Restaurant create($data)
- * @method static Restaurant update($data, $id)
+ * @method static update($data, $id)
  * @method static Response delete($id)
  * @see RestaurantService
  */

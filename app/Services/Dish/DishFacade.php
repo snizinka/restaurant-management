@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Facade;
  * @method static update($id, $request)
  * @method static Response delete($id)
  * @method static dishesFromRestaurant($id)
+ * @method static getDish($id)
  * @see DishService
  */
 class DishFacade extends Facade

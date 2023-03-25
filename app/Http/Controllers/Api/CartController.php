@@ -60,6 +60,9 @@ class CartController extends Controller
             try {
                 DB::beginTransaction();
                 $order_item = OrderItemFacade::create($request->id, $orders->id);
+                if(($order_item instanceof OrderItem) == 0) {
+                    return $order_item;
+                }
                 DB::commit();
             } catch(Exception $ex) {
                 DB::rollBack();
@@ -85,15 +88,17 @@ class CartController extends Controller
         if(!is_null($generalOrder)) {
             $order_item = OrderItemFacade::decreaseOrderCount($request->id);
         }else {
-            return [];
+            return response(
+                ["error" => "Couldn't find the order"],
+                ResponseAlias::HTTP_BAD_REQUEST
+            );
         }
 
         return $order_item;
     }
 
     public function getCart() {
-        $cart = CartFacade::getCart();
-        return new CartResource($cart[0]);
+        return CartFacade::getCart();
     }
 
     public function deleteCart() {

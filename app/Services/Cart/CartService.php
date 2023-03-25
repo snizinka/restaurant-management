@@ -4,8 +4,13 @@ namespace App\Services\Cart;
 
 use App\Http\Resources\CartResource;
 use App\Models\Cart;
+use App\Models\Dish;
 use App\Models\GeneralOrder;
+use App\Models\Order;
+use App\Models\OrderItem;
+use App\Services\OrderItem\OrderItemFacade;
 use Illuminate\Support\Facades\Auth;
+use Symfony\Component\HttpFoundation\Response as ResponseAlias;
 
 class CartService
 {
@@ -27,10 +32,23 @@ class CartService
     public function getCart() {
         $generalOrder = GeneralOrder::where('user_id', Auth::id())->where('status', 0)->first();
 
-        if(is_null($generalOrder)) {
-            return [];
+        $isAvailabilityChanged = OrderItemFacade::checkAvailability($generalOrder->id);
+
+        if ($isAvailabilityChanged) {
+            return response(
+                ["error" => "Some dishes from the order have changed"],
+                ResponseAlias::HTTP_BAD_REQUEST
+            );
         }
 
-        return Cart::where('general_order_id', $generalOrder->id)->get();
+        if(is_null($generalOrder)) {
+            return response(
+                ["error" => "Couldn't find the order"],
+                ResponseAlias::HTTP_BAD_REQUEST
+            );
+        }
+        $cart = Cart::where('general_order_id', $generalOrder->id)->get();
+
+        return new CartResource($cart[0]);
     }
 }

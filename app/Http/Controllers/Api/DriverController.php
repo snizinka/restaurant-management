@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\DriverResource;
 use App\Models\Driver;
+use App\Services\Driver\DriverFacade;
 use App\Traits\HttpResponses;
 use App\Http\Requests\StoreDriverRequest;
 use Illuminate\Support\Facades\DB;
@@ -18,10 +19,7 @@ class DriverController extends Controller
 
         try {
             DB::beginTransaction();
-            $driver = Driver::create([
-                'lastname' => $request->input('lastname'),
-                'name' => $request->input('name'),
-            ]);
+            $driver = DriverFacade::create($request);
             DB::commit();
         } catch(Exception $ex) {
             DB::rollBack();
@@ -38,50 +36,18 @@ class DriverController extends Controller
     }
 
     public function getDriver(string $id) {
-        $drivers = Driver::where('id', $id)->first();
 
-        return new DriverResource($drivers);
+        return DriverFacade::getDriver($id);
     }
 
     public function updateDriver(StoreDriverRequest $request, string $id) {
         $request->validated($request->all());
-        $drivers = Driver::where('id', $id)->first();
 
-        if($drivers == null) {
-            return [];
-        }
-
-        try {
-            DB::beginTransaction();
-            $drivers->update([
-                'lastname' => $request->input('lastname'),
-                'name' => $request->input('name'),
-            ]);
-            DB::commit();
-        } catch(Exception $ex) {
-            DB::rollBack();
-            abort(500);
-        }
-
-        return new DriverResource($drivers);
+        return DriverFacade::update($id, $request);
     }
 
     public function removeDriver(string $id) {
-        $drivers = Driver::where('id', $id)->first();
 
-        if($drivers == null) {
-            return [];
-        }
-
-        try {
-            DB::beginTransaction();
-            $drivers->delete();
-            DB::commit();
-        } catch(Exception $ex) {
-            DB::rollBack();
-            abort(500);
-        }
-
-        return $this->success('Success');
+        return DriverFacade::delete($id);
     }
 }

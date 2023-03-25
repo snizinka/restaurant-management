@@ -14,6 +14,7 @@ use App\Traits\HttpResponses;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use PHPUnit\Event\Exception;
+use Symfony\Component\HttpFoundation\Response as ResponseAlias;
 
 class RestaurantController extends Controller
 {
@@ -34,7 +35,10 @@ class RestaurantController extends Controller
         $restaurant = Restaurant::where('id', $id)->first();
 
         if($restaurant == null) {
-            return [];
+            return response(
+                ["id" => $id, "error" => "Couldn't find the restaurant"],
+                ResponseAlias::HTTP_BAD_REQUEST
+            );
         }
 
         return new RestaurantResource($restaurant);
@@ -44,13 +48,13 @@ class RestaurantController extends Controller
         $request->validated($request->all());
         $restaurant = RestaurantFacade::update($request, $id);
 
-        return new RestaurantResource($restaurant);
+        return $restaurant;
     }
 
     public function removeRestaurant(string $id) {
-        RestaurantFacade::delete($id);
+        $restaurant = RestaurantFacade::delete($id);
 
-        return true;
+        return $restaurant;
     }
 
     public function addRestaurant(StoreRestaurantRequest $request) {

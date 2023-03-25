@@ -3,6 +3,8 @@
 namespace App\Services\OrderItem;
 
 use App\Http\Resources\OrderItemResource;
+use App\Models\Dish;
+use App\Models\Order;
 use App\Models\OrderItem;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
@@ -17,7 +19,23 @@ class OrderItemService
         $this->orderItem = $orderItem;
     }
 
-    public function create($dish_id, $order_id, $availability = "available"): OrderItem {
+    public function create($dish_id, $order_id, $availability = "available") {
+        $dish = Dish::withTrashed()->where('id', $dish_id)->first();
+        if (is_null($dish)) {
+            return response(
+                ["id" => $dish_id, "error" => "Couldn't find the dish"],
+                ResponseAlias::HTTP_BAD_REQUEST
+            );
+        }
+
+        if ($availability == "available") {
+            if (!is_null($dish->deleted_at)) {
+                $availability = "deleted";
+            } else if($dish->availability != 1) {
+                $availability = "unavailable";
+            }
+        }
+
         $orderItem = OrderItem::create([
             'count' => 1,
             'dish_id' => $dish_id,
@@ -42,8 +60,15 @@ class OrderItemService
         return response(["id" => $orderItem_id, "deleted" => true], ResponseAlias::HTTP_OK);
     }
 
-    public function increaseOrderCount($orderItem_id): OrderItem {
+    public function increaseOrderCount($orderItem_id) {
         $order_item = OrderItem::where('id', $orderItem_id)->first();
+
+        if (is_null($this->orderItem)) {
+            return response(
+                ["id" => $orderItem_id, "error" => "Couldn't add the order item"],
+                ResponseAlias::HTTP_BAD_REQUEST
+            );
+        }
 
         $order_item->update([
             'count' => $order_item->count + 1
@@ -88,5 +113,42 @@ class OrderItemService
         }
 
         return new OrderItemResource($order_item);
+    }
+
+    public function checkAvailability($generalOrder_id) {
+        $orders = Order::where('general_orders_id', $generalOrder_id)->get();
+        $isAvailabilityChanged = false;
+
+        foreach ($orders as $order) {
+            $orderItems = OrderItem::where('order_id', $order->id)->get();
+            foreach ($orderItems as $orderItem) {
+
+                    $dish = Dish::withTrashed()->where('id', $orderItem->dish_id)->first();
+                    $availability = 'available';
+                    if (!is_null($dish->deleted_at)) {
+                        $availability = 'deleted';
+                    } else if ($dish->availability != 1) {
+                        $availability = 'unavailable';
+                    } else if ($dish->updated_at > $orderItem->created_at) {
+                        $availability = 'edited';
+                    }
+
+                    if ($availability != "available") {
+                        if($orderItem->availability == "available") {
+                        $isAvailabilityChanged = true;
+                        $orderItem->update([
+                            'availability' => $availability
+                        ]);
+                        }
+                    }else {
+                        $isAvailabilityChanged = true;
+                        $orderItem->update([
+                            'availability' => $availability
+                        ]);
+                    }
+            }
+        }
+
+        return $isAvailabilityChanged;
     }
 }

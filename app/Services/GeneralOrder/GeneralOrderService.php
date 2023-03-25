@@ -2,7 +2,13 @@
 
 namespace App\Services\GeneralOrder;
 
+use App\Http\Resources\GeneralOrderResource;
+use App\Models\Dish;
+use App\Models\Driver;
 use App\Models\GeneralOrder;
+use App\Models\Order;
+use App\Models\OrderItem;
+use App\Services\OrderItem\OrderItemFacade;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -46,14 +52,35 @@ class GeneralOrderService
         return response(["id" => $id, "deleted" => true], ResponseAlias::HTTP_OK);
     }
 
-    public function getDeneralOrder($id): GeneralOrder {
+    public function getDeneralOrder($id) {
         $generalOrder = GeneralOrder::where('id', $id)->first();
+        if (is_null($generalOrder)) {
+            return response(
+                ["id" => $id, "error" => "Couldn't find the restaurant"],
+                ResponseAlias::HTTP_BAD_REQUEST
+            );
+        }
 
-        return $generalOrder;
+        return new GeneralOrderResource($generalOrder);
     }
 
-    public function assignDriverToOrder($generalOrder_id, $driver_id): GeneralOrder {
+    public function assignDriverToOrder($generalOrder_id, $driver_id) {
         $generalOrder = GeneralOrder::where('id', $generalOrder_id)->first();
+        $driver = Driver::where('id', $driver_id)->get();
+
+        if (is_null($generalOrder)) {
+            return response(
+                ["id" => $generalOrder_id, "error" => "Couldn't find the order"],
+                ResponseAlias::HTTP_BAD_REQUEST
+            );
+        }
+
+        if (is_null($driver)) {
+            return response(
+                ["id" => $generalOrder_id, "error" => "Couldn't find the driver"],
+                ResponseAlias::HTTP_BAD_REQUEST
+            );
+        }
 
         try {
             DB::beginTransaction();
@@ -67,10 +94,19 @@ class GeneralOrderService
             abort(500);
         }
 
-        return $generalOrder;
+        return new GeneralOrderResource($generalOrder);
     }
 
-    public function placeOrder(GeneralOrder $generalOrder, $data): GeneralOrder {
+    public function placeOrder(GeneralOrder $generalOrder, $data) {
+        $isAvailabilityChanged = OrderItemFacade::checkAvailability($generalOrder->id);
+
+        if ($isAvailabilityChanged) {
+            return response(
+                ["error" => "Some dishes from the order have changed"],
+                ResponseAlias::HTTP_BAD_REQUEST
+            );
+        }
+
         $generalOrder->update([
             'address' => $data->address,
             'phone' => $data->phone,
@@ -78,6 +114,6 @@ class GeneralOrderService
             'status' => 1
         ]);
 
-        return $generalOrder;
+        return new GeneralOrderResource($generalOrder);
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Services\Restaurant;
 
 use App\Http\Resources\DishesResource;
+use App\Http\Resources\RestaurantResource;
 use App\Models\Dish;
 use App\Models\Restaurant;
 use Illuminate\Http\Response;
@@ -29,8 +30,15 @@ class RestaurantService
         return $restaurant;
     }
 
-    public function update($data, $id): Restaurant {
+    public function update($data, $id) {
         $restaurant = Restaurant::where('id', $id)->first();
+
+        if (is_null($restaurant)) {
+            return response(
+                ["id" => $id, "error" => "Couldn't find the restaurant"],
+                ResponseAlias::HTTP_BAD_REQUEST
+            );
+        }
 
         try {
             DB::beginTransaction();
@@ -45,7 +53,7 @@ class RestaurantService
             abort(500);
         }
 
-        return $restaurant;
+        return new RestaurantResource($restaurant);
     }
 
     public function delete($id): Response {

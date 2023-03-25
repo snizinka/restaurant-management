@@ -2,6 +2,7 @@
 
 namespace App\Services\Dish;
 
+use App\Http\Resources\DishesResource;
 use App\Models\Dish;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
@@ -29,7 +30,7 @@ class DishService
         return $dish;
     }
 
-    public function update($id, $request):Dish {
+    public function update($id, $request) {
         $data = [
             'name' => $request->input('name'),
             'price' => $request->input('price'),
@@ -39,9 +40,23 @@ class DishService
         ];
 
         $dish = Dish::where('id', $id)->first();
-        $dish->update($data);
+        if (is_null($dish)) {
+            return response(
+                ["id" => $id, "deleted" => false, "error" => "Couldn't find the dish"],
+                ResponseAlias::HTTP_BAD_REQUEST
+            );
+        }
 
-        return $dish;
+        try {
+            DB::beginTransaction();
+            $dish->update($data);
+            DB::commit();
+        } catch(Exception $ex) {
+            DB::rollBack();
+            abort(500);
+        }
+
+        return new DishesResource($dish);
     }
 
     public function delete($id): Response {
@@ -69,5 +84,20 @@ class DishService
     public function dishesFromRestaurant($id) {
         $dishes = Dish::where('restaurant_id', $id)->get();
         return $dishes;
+    }
+
+    public function getDish($id) {
+        $dish = Dish::where('id', $id)->first();
+
+        if(is_null($dish)) {
+            return response(
+                ["id" => $id, "deleted" => false, "error" => "Couldn't find the dish"],
+                ResponseAlias::HTTP_BAD_REQUEST
+            );
+        }
+
+        return new DishesResource(
+            $dish
+        );
     }
 }

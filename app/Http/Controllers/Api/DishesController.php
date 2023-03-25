@@ -40,15 +40,7 @@ class DishesController extends Controller
     }
     public function show(string $id)
     {
-        $dish = Dish::where('id', $id)->first();
-
-        if($dish == null) {
-            return [];
-        }
-
-        return new DishesResource(
-            $dish
-        );
+        return DishFacade::getDish($id);
     }
     public function edit(string $id)
     {
@@ -57,17 +49,10 @@ class DishesController extends Controller
     public function update(StoreDishRequest $request, string $id): DishesResource
     {
         $request->validated($request->all());
+        $dish = DishFacade::update($id, $request);
 
-        try {
-            DB::beginTransaction();
-            $dish = DishFacade::update($id, $request);
-            DB::commit();
-        } catch(Exception $ex) {
-            DB::rollBack();
-            abort(500);
-        }
 
-        return new DishesResource($dish);
+        return $dish;
     }
 
     public function destroy(string $id): Response

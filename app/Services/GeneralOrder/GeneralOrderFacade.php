@@ -8,8 +8,8 @@ use Illuminate\Support\Facades\Facade;
 /**
  * @method static GeneralOrder create()
  * @method static Response delete($id)
- * @method static GeneralOrder getDeneralOrder($id)
- * @method static GeneralOrder assignDriverToOrder($generalOrder_id, $driver_id)
+ * @method static getDeneralOrder($id)
+ * @method static assignDriverToOrder($generalOrder_id, $driver_id)
  * @method static GeneralOrder placeOrder(GeneralOrder $generalOrder, $data)
  * @see GeneralOrderService
  */

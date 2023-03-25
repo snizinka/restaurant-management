@@ -17,36 +17,37 @@ use App\Services\Order\OrderFacade;
 use App\Services\OrderItem\OrderItemFacade;
 use App\Traits\HttpResponses;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use PHPUnit\Event\Exception;
+use Symfony\Component\HttpFoundation\Response as ResponseAlias;
 
 class OrderController extends Controller
 {
     use HttpResponses;
 
     public function allOrders() {
-        $orders = GeneralOrder::where('status', 1)->get();
+        $generalOrder = GeneralOrder::where('status', 1)->get();
 
-        return GeneralOrderResource::collection($orders);
+        return GeneralOrderResource::collection($generalOrder);
     }
 
     public function orderDetails(string $id) {
-        $order = GeneralOrderFacade::getDeneralOrder($id);
+        $generalOrder = GeneralOrderFacade::getDeneralOrder($id);
 
-        return new GeneralOrderResource($order);
+        return $generalOrder;
     }
 
     public function assignDriver(Request $request, string $id) {
         $generalOrder = GeneralOrderFacade::assignDriverToOrder($id, $request->input('driver'));
 
-        return new GeneralOrderResource($generalOrder);
+        return $generalOrder;
     }
 
     public function removeOrder(string $id) {
-        GeneralOrderFacade::delete($id);
 
-        return true;
+        return GeneralOrderFacade::delete($id);
     }
 
     public function placeOrder(StoreOrderRequest $request) {
@@ -63,10 +64,13 @@ class OrderController extends Controller
                 abort(500);
             }
         } else {
-            return $this->error($generalOrder, ['noorder' => 'No orders found'], 404);
+            return response(
+                ["error" => "Couldn't find the order"],
+                ResponseAlias::HTTP_BAD_REQUEST
+            );
         }
 
-        return new GeneralOrderResource($generalOrder);
+        return $generalOrder;
     }
 
     public function checkOrder() {
