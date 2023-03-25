@@ -14,11 +14,12 @@ class OrderItemService
         $this->orderItem = $orderItem;
     }
 
-    public function create($dish_id, $order_id): OrderItem {
+    public function create($dish_id, $order_id, $availability = "available"): OrderItem {
         $orderItem = OrderItem::create([
             'count' => 1,
             'dish_id' => $dish_id,
-            'order_id' => $order_id
+            'order_id' => $order_id,
+            'availability' => $availability
         ]);
 
         return $orderItem;

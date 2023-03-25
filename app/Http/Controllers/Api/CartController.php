@@ -43,7 +43,7 @@ class CartController extends Controller
         where('restaurant_id', $dish->restaurant_id)->first();
 
         if (is_null($orders)) {
-            $orders = OrderFacade::create($generalOrder->id, $dish);
+            $orders = OrderFacade::create($generalOrder->id, $dish->restaurant_id);
         }
 
         $order_item = OrderItem::where('dish_id', $request->id)->where('order_id', $orders->id)->first();
@@ -83,7 +83,7 @@ class CartController extends Controller
 
     public function getCart() {
         $cart = CartFacade::getCart();
-        return CartResource::collection($cart);
+        return new CartResource($cart[0]);
     }
 
     public function deleteCart() {

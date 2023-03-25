@@ -6,8 +6,15 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreOrderRequest;
 use App\Http\Resources\GeneralOrderResource;
 use App\Http\Resources\OrderResource;
+use App\Models\Cart;
+use App\Models\Dish;
 use App\Models\GeneralOrder;
 use App\Models\Order;
+use App\Models\OrderItem;
+use App\Services\Cart\CartFacade;
+use App\Services\GeneralOrder\GeneralOrderFacade;
+use App\Services\Order\OrderFacade;
+use App\Services\OrderItem\OrderItemFacade;
 use App\Traits\HttpResponses;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -25,67 +32,41 @@ class OrderController extends Controller
     }
 
     public function orderDetails(string $id) {
-        $order = GeneralOrder::where('id', $id)->first();
+        $order = GeneralOrderFacade::getDeneralOrder($id);
 
         return new GeneralOrderResource($order);
     }
 
     public function assignDriver(Request $request, string $id) {
-        $order = GeneralOrder::where('id', $id)->first();
+        $generalOrder = GeneralOrderFacade::assignDriverToOrder($id, $request->input('driver'));
 
-        try {
-            DB::beginTransaction();
-            $order->update([
-                'driver_id' => $request->input('driver'),
-                'status' => 2
-            ]);
-            DB::commit();
-        } catch(Exception $ex) {
-            DB::rollBack();
-            abort(500);
-        }
-
-        return $request->input('driver');
+        return new GeneralOrderResource($generalOrder);
     }
 
     public function removeOrder(string $id) {
-        $order = GeneralOrder::where('id', $id)->first();
-
-        try {
-            DB::beginTransaction();
-            $order->delete();
-            DB::commit();
-        } catch(Exception $ex) {
-            DB::rollBack();
-            abort(500);
-        }
+        GeneralOrderFacade::delete($id);
 
         return true;
     }
 
     public function placeOrder(StoreOrderRequest $request) {
         $request->validated($request->all());
-        $orders = GeneralOrder::where('user_id', Auth::id())->where('status', 0)->first();
+        $generalOrder = GeneralOrder::where('user_id', Auth::id())->where('status', 0)->first();
 
-        if (!is_null($orders)) {
+        if (!is_null($generalOrder)) {
             try {
                 DB::beginTransaction();
-                $orders->update([
-                    'address' => $request->address,
-                    'phone' => $request->phone,
-                    'username' => $request->username,
-                    'status' => 1
-                ]);
+                $generalOrder = GeneralOrderFacade::placeOrder($generalOrder, $request);
                 DB::commit();
             } catch(Exception $ex) {
                 DB::rollBack();
                 abort(500);
             }
         } else {
-            return $this->error($orders, ['noorder' => 'No orders found'], 404);
+            return $this->error($generalOrder, ['noorder' => 'No orders found'], 404);
         }
 
-        return new GeneralOrderResource($orders);
+        return new GeneralOrderResource($generalOrder);
     }
 
     public function checkOrder() {
@@ -124,12 +105,38 @@ class OrderController extends Controller
         return $this->success(['average' => $result]);
     }
 
-    public function duplicateOrder(string $id) {
-        $generalOrder = GeneralOrder::where('id', $id)->first();
+    public function duplicateOrder(Request $request) {
+        $generalOrder = GeneralOrder::where('id', $request->id)->first();
         $orders = Order::where('general_orders_id', $generalOrder->id)->get();
-        foreach ($orders as $order) {
 
+        $duplicateGeneralOrder = GeneralOrderFacade::create();
+        $duplicateCart = CartFacade::create($duplicateGeneralOrder->id);
+
+        foreach ($orders as $order) {
+            $duplicateOrder = OrderFacade::create($duplicateGeneralOrder->id, $order->restaurant_id);
+            $orderItems = OrderItem::where('order_id', $order->id)->get();
+
+            foreach ($orderItems as $orderItem) {
+                $dish = Dish::withTrashed()->where('id', $orderItem->dish_id)->first();
+
+                $availability = 'available';
+                if ($dish->availability != 1) {
+                    $availability = 'unavailable';
+                } else if($dish->updated_at > $orderItem->updated_at) {
+                    $availability = 'updated';
+                } else if($orderItem->availability != "available") {
+                    $availability = $orderItem->availability;
+                }
+
+                if (!is_null($dish->deleted_at)) {
+                    $availability = 'deleted';
+                }
+
+                $duplicateOrderItem = OrderItemFacade::create($orderItem->dish_id, $duplicateOrder->id, $availability);
+            }
         }
+
+        return new GeneralOrderResource($duplicateGeneralOrder);
     }
 }
 

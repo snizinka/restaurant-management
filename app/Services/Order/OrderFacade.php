@@ -6,7 +6,7 @@ use App\Models\Order;
 use Illuminate\Support\Facades\Facade;
 
 /**
- * @method static Order create($generalOrder_id, $dish)
+ * @method static Order create($generalOrder_id, $generalOrder_id)
  * @see OrderService
 */
 

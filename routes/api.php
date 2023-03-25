@@ -42,6 +42,7 @@ Route::group(['middleware' => ['hasbearer']], function () {
     Route::delete('/cart/remove', [CartController::class, 'removeFromCart']);
     Route::get('/orders', [OrderController::class, 'allOrders']);
     Route::get('/orders/{id}', [OrderController::class, 'orderDetails']);
+    Route::post('/orders', [OrderController::class, 'duplicateOrder']);
     Route::delete('/orders/{id}', [OrderController::class, 'removeOrder']);
     Route::post('/order/place', [OrderController::class, 'placeOrder']);
     Route::get('/order/status', [OrderController::class, 'checkOrder']);
