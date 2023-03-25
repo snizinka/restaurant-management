@@ -80,24 +80,26 @@ class OrderController extends Controller
     }
 
     public function averageOrderCost() {
-        $orders = DB::table('orders as od')
-            ->leftJoin('carts as ct', 'ct.order_id', '=', 'od.id')
-            ->leftJoin('dishes as ds', 'ct.dish_id', '=', 'ds.id')
-            ->selectRaw('ROUND(sum(ds.price * ct.count) / count(ds.price), 2) as price, CAST(od.created_at AS date) as date')
-            ->whereRaw('DATEDIFF(current_date, od.created_at) between 0 and 30 AND od.status > 0 AND ds.id IS NOT NULL')
-            ->groupBy(DB::raw('CAST(od.created_at AS date)'))
+        $orders = DB::table('general_orders as go')
+            ->join('orders as od', 'od.general_orders_id', '=', 'go.id')
+            ->join('order_items as ct', 'ct.order_id', '=', 'od.id')
+            ->join('dishes as ds', 'ct.dish_id', '=', 'ds.id')
+            ->selectRaw('ROUND(sum(ds.price * ct.count) / count(ds.price), 2) as price, DATE(go.created_at) as date')
+            ->whereRaw('DATEDIFF(current_date, od.created_at) between 0 and 30 AND go.status > 0 AND ds.id IS NOT NULL')
+            ->groupBy(DB::raw('DATE(go.created_at)'))
             ->get();
 
         return $this->success(['average' => $orders]);
     }
 
     public function averageDriverPaid() {
-        $orders = DB::table('orders as od')
-            ->leftJoin('carts as ct', 'ct.order_id', '=', 'od.id')
-            ->leftJoin('drivers as ds', 'od.driver_id', '=', 'ds.id')
-            ->selectRaw('sum(15) as "paid", count(*) as "deliveries", CAST(od.created_at AS date) as "date"')
-            ->whereRaw('DATEDIFF(current_date, od.created_at) between 0 and 30 AND od.status > 1 AND ct.order_id = od.id')
-            ->groupBy(DB::raw('CAST(od.created_at AS date)'))
+        $orders = DB::table('general_orders as go')
+            ->join('orders as od', 'od.general_orders_id', '=', 'go.id')
+            ->join('order_items as ct', 'ct.order_id', '=', 'od.id')
+            ->join('drivers as ds', 'go.driver_id', '=', 'ds.id')
+            ->selectRaw('SUM(15) as paid, COUNT(*) as deliveries, DATE(go.created_at) as date')
+            ->whereRaw('DATEDIFF(current_date, od.created_at) between 0 and 30 AND go.status > 1 AND ct.order_id = od.id')
+            ->groupBy(DB::raw('DATE(go.created_at)'))
             ->get();
 
         if ($orders->avg('paid') == null) {
