@@ -5,8 +5,10 @@ namespace App\Services\Restaurant;
 use App\Http\Resources\DishesResource;
 use App\Models\Dish;
 use App\Models\Restaurant;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
 use PHPUnit\Event\Exception;
+use Symfony\Component\HttpFoundation\Response as ResponseAlias;
 
 class RestaurantService
 {
@@ -46,10 +48,17 @@ class RestaurantService
         return $restaurant;
     }
 
-    public function delete($id) {
+    public function delete($id): Response {
         $restaurant = Restaurant::where('id', $id)->first();
+
+        if (is_null($restaurant)) {
+            return response(
+                ["id" => $id, "deleted" => false, "error" => "Couldn't delete the restaurant"],
+                ResponseAlias::HTTP_BAD_REQUEST
+            );
+        }
         $restaurant->delete();
 
-        return true;
+        return response(["id" => $id, "deleted" => true], ResponseAlias::HTTP_OK);
     }
 }

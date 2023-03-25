@@ -3,8 +3,10 @@
 namespace App\Services\Dish;
 
 use App\Models\Dish;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
 use PHPUnit\Event\Exception;
+use Symfony\Component\HttpFoundation\Response as ResponseAlias;
 
 class DishService
 {
@@ -42,8 +44,15 @@ class DishService
         return $dish;
     }
 
-    public function delete($id) {
+    public function delete($id): Response {
         $dish = Dish::where('id', $id)->first();
+
+        if (is_null($dish)) {
+            return response(
+                ["id" => $id, "deleted" => false, "error" => "Couldn't delete the dish"],
+                ResponseAlias::HTTP_BAD_REQUEST
+            );
+        }
 
         try {
             DB::beginTransaction();
@@ -54,7 +63,7 @@ class DishService
             abort(500);
         }
 
-        return true;
+        return response(["id" => $id, "deleted" => true], ResponseAlias::HTTP_OK);
     }
 
     public function dishesFromRestaurant($id) {

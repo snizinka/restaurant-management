@@ -9,6 +9,7 @@ use App\Models\Dish;
 use App\Models\User;
 use App\Services\Dish\DishFacade;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use PHPUnit\Event\Exception;
@@ -69,10 +70,8 @@ class DishesController extends Controller
         return new DishesResource($dish);
     }
 
-    public function destroy(string $id)
+    public function destroy(string $id): Response
     {
-       DishFacade::delete($id);
-
-        return true;
+        return DishFacade::delete($id);
     }
 }

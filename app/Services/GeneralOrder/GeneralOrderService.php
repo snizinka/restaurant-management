@@ -3,9 +3,11 @@
 namespace App\Services\GeneralOrder;
 
 use App\Models\GeneralOrder;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use PHPUnit\Event\Exception;
+use Symfony\Component\HttpFoundation\Response as ResponseAlias;
 
 class GeneralOrderService
 {
@@ -25,9 +27,14 @@ class GeneralOrderService
         return $generalOrder;
     }
 
-    public function delete($id) {
+    public function delete($id): Response {
         $generalOrder = GeneralOrder::where('id', $id)->first();
-
+        if (is_null($generalOrder)) {
+            return response(
+                ["id" => $id, "deleted" => false, "error" => "Couldn't delete the order"],
+                ResponseAlias::HTTP_BAD_REQUEST
+            );
+        }
         try {
             DB::beginTransaction();
             $generalOrder->delete();
@@ -36,7 +43,7 @@ class GeneralOrderService
             DB::rollBack();
             abort(500);
         }
-        return true;
+        return response(["id" => $id, "deleted" => true], ResponseAlias::HTTP_OK);
     }
 
     public function getDeneralOrder($id): GeneralOrder {

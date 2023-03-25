@@ -3,7 +3,9 @@
 namespace App\Services\OrderItem;
 
 use App\Models\OrderItem;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
+use Symfony\Component\HttpFoundation\Response as ResponseAlias;
 
 class OrderItemService
 {
@@ -25,11 +27,18 @@ class OrderItemService
         return $orderItem;
     }
 
-    public function delete($orderItem_id) {
+    public function delete($orderItem_id): Response {
         $order_item = OrderItem::where('id', $orderItem_id)->first();
         if (!is_null($order_item)) {
             $order_item->delete();
+        } else {
+            return response(
+                ["id" => $orderItem_id, "deleted" => false, "error" => "Couldn't delete the order item"],
+                ResponseAlias::HTTP_BAD_REQUEST
+            );
         }
+
+        return response(["id" => $orderItem_id, "deleted" => true], ResponseAlias::HTTP_OK);
     }
 
     public function increaseOrderCount($orderItem_id): OrderItem {
