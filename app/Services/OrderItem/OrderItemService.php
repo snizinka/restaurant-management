@@ -141,10 +141,12 @@ class OrderItemService
                         ]);
                         }
                     }else {
+                        if($orderItem->availability != "available") {
                         $isAvailabilityChanged = true;
                         $orderItem->update([
                             'availability' => $availability
                         ]);
+                            }
                     }
             }
         }

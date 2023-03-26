@@ -100,16 +100,4 @@ class CartController extends Controller
     public function getCart() {
         return CartFacade::getCart();
     }
-
-    public function deleteCart() {
-        $orders = GeneralOrder::where('user_id', Auth::id())->first();
-
-        if(is_null($orders)) {
-            return [];
-        }
-
-        $cart = Cart::where('order_id', $orders->id)->get();
-        $cart->delete();
-        return true;
-    }
 }

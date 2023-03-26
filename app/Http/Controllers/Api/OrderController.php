@@ -58,6 +58,9 @@ class OrderController extends Controller
             try {
                 DB::beginTransaction();
                 $generalOrder = GeneralOrderFacade::placeOrder($generalOrder, $request);
+                if ($generalOrder instanceof GeneralOrderResource) {
+                    CartFacade::clearCart();
+                }
                 DB::commit();
             } catch(Exception $ex) {
                 DB::rollBack();

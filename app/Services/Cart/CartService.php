@@ -51,4 +51,16 @@ class CartService
 
         return new CartResource($cart[0]);
     }
+
+    public function clearCart() {
+        $orders = GeneralOrder::where('user_id', Auth::id())->where('status', '>', 0)->get();
+
+        foreach ($orders as $order) {
+            $cart = Cart::where('general_order_id', $order->id)->first();
+            if (!is_null($cart)) {
+                $cart->delete();
+            }
+        }
+        return response(["deleted" => true], ResponseAlias::HTTP_OK);
+    }
 }

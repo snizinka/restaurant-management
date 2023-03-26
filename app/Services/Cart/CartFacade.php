@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Facade;
 /**
  * @method static Cart create($generalOrder_id)
  * @method static getCart()
+ * @method static clearCart()
  * @see CartService
  */
 class CartFacade extends Facade
