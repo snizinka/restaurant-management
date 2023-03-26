@@ -175,7 +175,8 @@ class OrderController extends Controller
             $duplicateGeneralOrder->update([
                 'address' => $generalOrder->address,
                 'phone' => $generalOrder->phone,
-                'username' => $generalOrder->username
+                'username' => $generalOrder->username,
+                'status' => 1
             ]);
         }
 

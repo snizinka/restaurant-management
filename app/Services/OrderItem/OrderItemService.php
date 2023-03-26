@@ -95,6 +95,11 @@ class OrderItemService
             }
         }
 
+        $order = Order::where('id', $order_item->order_id)->first();
+        if (count($order->orderItems) == 0) {
+            $order->delete();
+        }
+
         return new OrderItemResource($order_item);
     }
 
