@@ -36,7 +36,7 @@ class DishesController extends Controller
             abort(500);
         }
 
-        return new DishesResource($dish);
+        return $dish;
     }
     public function show(string $id)
     {

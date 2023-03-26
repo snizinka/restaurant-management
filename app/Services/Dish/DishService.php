@@ -4,6 +4,8 @@ namespace App\Services\Dish;
 
 use App\Http\Resources\DishesResource;
 use App\Models\Dish;
+use App\Models\DishCategory;
+use App\Models\Restaurant;
 use Illuminate\Support\Facades\DB;
 use PHPUnit\Event\Exception;
 
@@ -16,7 +18,15 @@ class DishService
         $this->dish = $dish;
     }
 
-    public function create($data): Dish {
+    public function create($data) {
+        $category = DishCategory::where('id', $data->category_id)->first();
+        $restaurant = Restaurant::where('id', $data->restaurant_id)->first();
+        if (is_null($category)) {
+            return response()->json(['message' => 'Category not found.'], 404);
+        } else if(is_null($restaurant)) {
+            return response()->json(['message' => 'Restaurant not found.'], 404);
+        }
+
         $dish = Dish::create([
             'name' => $data->name,
             'price' => $data->price,
@@ -25,7 +35,7 @@ class DishService
             'restaurant_id' => $data->restaurant_id
         ]);
 
-        return $dish;
+        return new DishesResource($dish);
     }
 
     public function update($id, $request) {
