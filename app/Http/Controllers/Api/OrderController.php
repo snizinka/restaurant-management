@@ -115,19 +115,41 @@ class OrderController extends Controller
     }
 
     public function duplicateOrder(Request $request) {
+        $placeOrder = true;
         $generalOrder = GeneralOrder::where('id', $request->id)->first();
+        if (is_null($generalOrder)) {
+            return response()->json(['message' => 'General order not found.'], 404);
+        }
+        else if ($generalOrder->user_id != Auth::id()) {
+            return response()->json(['error' => "You are trying to access someone else's order"], 403);
+        }
+
         $orders = Order::where('general_orders_id', $generalOrder->id)->get();
+        if (is_null($orders)) {
+            return response()->json(['message' => 'Order not found.'], 404);
+        }
+
+        $curentGeneralOrder = GeneralOrder::where('user_id', Auth::id())->where('status', 0)->first();
+
+        if (!is_null($curentGeneralOrder)) {
+           GeneralOrderFacade::delete($curentGeneralOrder->id);
+        }
 
         $duplicateGeneralOrder = GeneralOrderFacade::create();
-        $duplicateCart = CartFacade::create($duplicateGeneralOrder->id);
+        CartFacade::create($duplicateGeneralOrder->id);
 
         foreach ($orders as $order) {
             $duplicateOrder = OrderFacade::create($duplicateGeneralOrder->id, $order->restaurant_id);
             $orderItems = OrderItem::where('order_id', $order->id)->get();
+            if (is_null($orderItems)) {
+                return response()->json(['message' => 'Order item order not found.'], 404);
+            }
 
             foreach ($orderItems as $orderItem) {
                 $dish = Dish::withTrashed()->where('id', $orderItem->dish_id)->first();
-
+                if (is_null($dish)) {
+                    return response()->json(['message' => 'Dish not found.'], 404);
+                }
                 $availability = 'available';
                 if ($dish->availability != 1) {
                     $availability = 'unavailable';
@@ -141,8 +163,20 @@ class OrderController extends Controller
                     $availability = 'deleted';
                 }
 
-                $duplicateOrderItem = OrderItemFacade::create($orderItem->dish_id, $duplicateOrder->id, $availability);
+                if ($availability != "available") {
+                    $placeOrder = false;
+                }
+
+                OrderItemFacade::create($orderItem->dish_id, $duplicateOrder->id, $availability);
             }
+        }
+
+        if ($placeOrder) {
+            $duplicateGeneralOrder->update([
+                'address' => $generalOrder->address,
+                'phone' => $generalOrder->phone,
+                'username' => $generalOrder->username
+            ]);
         }
 
         return new GeneralOrderResource($duplicateGeneralOrder);

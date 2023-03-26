@@ -27,16 +27,12 @@ class CartService
 
     public function getCart() {
         $generalOrder = GeneralOrder::where('user_id', Auth::id())->where('status', 0)->first();
-
-        $isAvailabilityChanged = OrderItemFacade::checkAvailability($generalOrder->id);
-
-        if ($isAvailabilityChanged) {
-            return response()->json(['error' => 'Some dishes from the order have changed'], 500);
-        }
-
         if(is_null($generalOrder)) {
             return response()->json(['message' => 'General order not found.'], 404);
         }
+
+        OrderItemFacade::checkAvailability($generalOrder->id);
+
         $cart = Cart::where('general_order_id', $generalOrder->id)->get();
 
         return new CartResource($cart[0]);
