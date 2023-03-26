@@ -34,10 +34,7 @@ class RestaurantService
         $restaurant = Restaurant::where('id', $id)->first();
 
         if (is_null($restaurant)) {
-            return response(
-                ["id" => $id, "error" => "Couldn't find the restaurant"],
-                ResponseAlias::HTTP_BAD_REQUEST
-            );
+            return response()->json(['message' => 'Restaurant not found.'], 404);
         }
 
         try {
@@ -56,17 +53,14 @@ class RestaurantService
         return new RestaurantResource($restaurant);
     }
 
-    public function delete($id): Response {
+    public function delete($id) {
         $restaurant = Restaurant::where('id', $id)->first();
 
         if (is_null($restaurant)) {
-            return response(
-                ["id" => $id, "deleted" => false, "error" => "Couldn't delete the restaurant"],
-                ResponseAlias::HTTP_BAD_REQUEST
-            );
+            return response()->json(['message' => 'Restaurant not found.'], 404);
         }
         $restaurant->delete();
 
-        return response(["id" => $id, "deleted" => true], ResponseAlias::HTTP_OK);
+        return response()->json([], 204);
     }
 }

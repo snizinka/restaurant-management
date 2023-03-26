@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Facade;
 /**
  * @method static create($data)
  * @method static update($id, $request)
- * @method static Response delete($id)
+ * @method static delete($id)
  * @method static dishesFromRestaurant($id)
  * @method static getDish($id)
  * @see DishService

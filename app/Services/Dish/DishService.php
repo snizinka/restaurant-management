@@ -41,10 +41,7 @@ class DishService
 
         $dish = Dish::where('id', $id)->first();
         if (is_null($dish)) {
-            return response(
-                ["id" => $id, "deleted" => false, "error" => "Couldn't find the dish"],
-                ResponseAlias::HTTP_BAD_REQUEST
-            );
+            return response()->json(['message' => 'Dish not found.'], 404);
         }
 
         try {
@@ -59,14 +56,11 @@ class DishService
         return new DishesResource($dish);
     }
 
-    public function delete($id): Response {
+    public function delete($id) {
         $dish = Dish::where('id', $id)->first();
 
         if (is_null($dish)) {
-            return response(
-                ["id" => $id, "deleted" => false, "error" => "Couldn't delete the dish"],
-                ResponseAlias::HTTP_BAD_REQUEST
-            );
+            return response()->json(['message' => 'Dish not found.'], 404);
         }
 
         try {
@@ -78,7 +72,7 @@ class DishService
             abort(500);
         }
 
-        return response(["id" => $id, "deleted" => true], ResponseAlias::HTTP_OK);
+        return response()->json([], 204);
     }
 
     public function dishesFromRestaurant($id) {
@@ -90,10 +84,7 @@ class DishService
         $dish = Dish::where('id', $id)->first();
 
         if(is_null($dish)) {
-            return response(
-                ["id" => $id, "deleted" => false, "error" => "Couldn't find the dish"],
-                ResponseAlias::HTTP_BAD_REQUEST
-            );
+            return response()->json(['message' => 'Dish not found.'], 404);
         }
 
         return new DishesResource(

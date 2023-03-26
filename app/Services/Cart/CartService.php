@@ -35,17 +35,11 @@ class CartService
         $isAvailabilityChanged = OrderItemFacade::checkAvailability($generalOrder->id);
 
         if ($isAvailabilityChanged) {
-            return response(
-                ["error" => "Some dishes from the order have changed"],
-                ResponseAlias::HTTP_BAD_REQUEST
-            );
+            return response()->json(['error' => 'Some dishes from the order have changed'], 500);
         }
 
         if(is_null($generalOrder)) {
-            return response(
-                ["error" => "Couldn't find the order"],
-                ResponseAlias::HTTP_BAD_REQUEST
-            );
+            return response()->json(['message' => 'General order not found.'], 404);
         }
         $cart = Cart::where('general_order_id', $generalOrder->id)->get();
 
@@ -61,6 +55,6 @@ class CartService
                 $cart->delete();
             }
         }
-        return response(["deleted" => true], ResponseAlias::HTTP_OK);
+        return response()->json([], 204);
     }
 }

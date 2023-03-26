@@ -33,13 +33,10 @@ class GeneralOrderService
         return $generalOrder;
     }
 
-    public function delete($id): Response {
+    public function delete($id) {
         $generalOrder = GeneralOrder::where('id', $id)->first();
         if (is_null($generalOrder)) {
-            return response(
-                ["id" => $id, "deleted" => false, "error" => "Couldn't delete the order"],
-                ResponseAlias::HTTP_BAD_REQUEST
-            );
+            return response()->json(['message' => 'General order not found.'], 404);
         }
         try {
             DB::beginTransaction();
@@ -49,16 +46,13 @@ class GeneralOrderService
             DB::rollBack();
             abort(500);
         }
-        return response(["id" => $id, "deleted" => true], ResponseAlias::HTTP_OK);
+        return response()->json([], 204);
     }
 
     public function getDeneralOrder($id) {
         $generalOrder = GeneralOrder::where('id', $id)->first();
         if (is_null($generalOrder)) {
-            return response(
-                ["id" => $id, "error" => "Couldn't find the restaurant"],
-                ResponseAlias::HTTP_BAD_REQUEST
-            );
+            return response()->json(['message' => 'General order not found.'], 404);
         }
 
         return new GeneralOrderResource($generalOrder);
@@ -69,17 +63,11 @@ class GeneralOrderService
         $driver = Driver::where('id', $driver_id)->get();
 
         if (is_null($generalOrder)) {
-            return response(
-                ["id" => $generalOrder_id, "error" => "Couldn't find the order"],
-                ResponseAlias::HTTP_BAD_REQUEST
-            );
+            return response()->json(['message' => 'General order not found.'], 404);
         }
 
         if (is_null($driver)) {
-            return response(
-                ["id" => $generalOrder_id, "error" => "Couldn't find the driver"],
-                ResponseAlias::HTTP_BAD_REQUEST
-            );
+            return response()->json(['message' => 'Driver not found.'], 404);
         }
 
         try {
@@ -101,10 +89,7 @@ class GeneralOrderService
         $isAvailabilityChanged = OrderItemFacade::checkAvailability($generalOrder->id);
 
         if ($isAvailabilityChanged) {
-            return response(
-                ["error" => "Some dishes from the order have changed"],
-                ResponseAlias::HTTP_BAD_REQUEST
-            );
+            return response()->json(['error' => 'Some dishes from the order have changed'], 500);
         }
 
         $generalOrder->update([

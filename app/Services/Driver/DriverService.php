@@ -31,10 +31,7 @@ class DriverService
         $drivers = Driver::where('id', $id)->first();
 
         if($drivers == null) {
-            return response(
-                ["id" => $id, "error" => "Couldn't find the driver"],
-                ResponseAlias::HTTP_BAD_REQUEST
-            );
+            return response()->json(['message' => 'Driver not found.'], 404);
         }
 
         try {
@@ -56,10 +53,7 @@ class DriverService
         $drivers = Driver::where('id', $id)->first();
 
         if(is_null($drivers)) {
-            return response(
-                ["id" => $id, "error" => "Couldn't find the driver"],
-                ResponseAlias::HTTP_BAD_REQUEST
-            );
+            return response()->json(['message' => 'Driver not found.'], 404);
         }
 
         try {
@@ -71,17 +65,14 @@ class DriverService
             abort(500);
         }
 
-        return response(["id" => $id, "deleted" => true], ResponseAlias::HTTP_OK);
+        return response()->json([], 204);
     }
 
     public function getDriver($id) {
         $driver = Driver::where('id', $id)->first();
 
         if (is_null($driver)) {
-            return response(
-                ["id" => $id, "error" => "Couldn't find the driver"],
-                ResponseAlias::HTTP_BAD_REQUEST
-            );
+            return response()->json(['message' => 'Driver not found.'], 404);
         }
 
         return new DriverResource($driver);

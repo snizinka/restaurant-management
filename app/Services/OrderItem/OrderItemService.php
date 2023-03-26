@@ -22,10 +22,7 @@ class OrderItemService
     public function create($dish_id, $order_id, $availability = "available") {
         $dish = Dish::withTrashed()->where('id', $dish_id)->first();
         if (is_null($dish)) {
-            return response(
-                ["id" => $dish_id, "error" => "Couldn't find the dish"],
-                ResponseAlias::HTTP_BAD_REQUEST
-            );
+            return response()->json(['message' => 'Order item not found.'], 404);
         }
 
         if ($availability == "available") {
@@ -46,28 +43,22 @@ class OrderItemService
         return $orderItem;
     }
 
-    public function delete($orderItem_id): Response {
+    public function delete($orderItem_id) {
         $order_item = OrderItem::where('id', $orderItem_id)->first();
         if (!is_null($order_item)) {
             $order_item->delete();
         } else {
-            return response(
-                ["id" => $orderItem_id, "deleted" => false, "error" => "Couldn't delete the order item"],
-                ResponseAlias::HTTP_BAD_REQUEST
-            );
+            return response()->json(['message' => 'Order item not found.'], 404);
         }
 
-        return response(["id" => $orderItem_id, "deleted" => true], ResponseAlias::HTTP_OK);
+        return response()->json([], 204);
     }
 
     public function increaseOrderCount($orderItem_id) {
         $order_item = OrderItem::where('id', $orderItem_id)->first();
 
         if (is_null($this->orderItem)) {
-            return response(
-                ["id" => $orderItem_id, "error" => "Couldn't add the order item"],
-                ResponseAlias::HTTP_BAD_REQUEST
-            );
+            return response()->json(['message' => 'Order item not found.'], 404);
         }
 
         $order_item->update([
@@ -80,13 +71,9 @@ class OrderItemService
     public function decreaseOrderCount($orderItem_id) {
         $order_item = OrderItem::where('id', $orderItem_id)->first();
         if (is_null($order_item)) {
-            return response(
-                ["id" => $orderItem_id, "deleted" => false, "error" => "Couldn't delete the order item"],
-                ResponseAlias::HTTP_BAD_REQUEST
-            );
+            return response()->json(['message' => 'Order item not found.'], 404);
         }
-
-        if (!is_null($order_item)){
+        else{
             if($order_item->count > 1) {
                 try {
                     DB::beginTransaction();
@@ -108,8 +95,6 @@ class OrderItemService
                     abort(500);
                 }
             }
-        } else {
-            return response()->json(['data' => 'null']);
         }
 
         return new OrderItemResource($order_item);
