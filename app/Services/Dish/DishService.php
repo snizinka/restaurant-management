@@ -52,6 +52,14 @@ class DishService
             return response()->json(['message' => 'Dish not found.'], 404);
         }
 
+        $category = DishCategory::where('id', $data['category_id'])->first();
+        $restaurant = Restaurant::where('id', $data['restaurant_id'])->first();
+        if (is_null($category)) {
+            return response()->json(['message' => 'Category not found.'], 404);
+        } else if(is_null($restaurant)) {
+            return response()->json(['message' => 'Restaurant not found.'], 404);
+        }
+
         try {
             DB::beginTransaction();
             $dish->update($data);

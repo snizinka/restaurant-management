@@ -23,7 +23,7 @@ class DishesController extends Controller
         );
     }
 
-    public function store(StoreDishRequest $request): DishesResource
+    public function store(StoreDishRequest $request)
     {
         $request->validated($request->all());
 
@@ -46,11 +46,10 @@ class DishesController extends Controller
     {
         //
     }
-    public function update(StoreDishRequest $request, string $id): DishesResource
+    public function update(StoreDishRequest $request, string $id)
     {
         $request->validated($request->all());
         $dish = DishFacade::update($id, $request);
-
 
         return $dish;
     }
