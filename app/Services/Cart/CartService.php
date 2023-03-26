@@ -4,13 +4,9 @@ namespace App\Services\Cart;
 
 use App\Http\Resources\CartResource;
 use App\Models\Cart;
-use App\Models\Dish;
 use App\Models\GeneralOrder;
-use App\Models\Order;
-use App\Models\OrderItem;
 use App\Services\OrderItem\OrderItemFacade;
 use Illuminate\Support\Facades\Auth;
-use Symfony\Component\HttpFoundation\Response as ResponseAlias;
 
 class CartService
 {

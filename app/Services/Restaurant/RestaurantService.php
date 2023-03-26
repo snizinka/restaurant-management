@@ -2,14 +2,10 @@
 
 namespace App\Services\Restaurant;
 
-use App\Http\Resources\DishesResource;
 use App\Http\Resources\RestaurantResource;
-use App\Models\Dish;
 use App\Models\Restaurant;
-use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
 use PHPUnit\Event\Exception;
-use Symfony\Component\HttpFoundation\Response as ResponseAlias;
 
 class RestaurantService
 {

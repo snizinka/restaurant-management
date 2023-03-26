@@ -4,10 +4,8 @@ namespace App\Services\Driver;
 
 use App\Http\Resources\DriverResource;
 use App\Models\Driver;
-use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
 use PHPUnit\Event\Exception;
-use Symfony\Component\HttpFoundation\Response as ResponseAlias;
 
 class DriverService
 {

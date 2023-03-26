@@ -3,17 +3,12 @@
 namespace App\Services\GeneralOrder;
 
 use App\Http\Resources\GeneralOrderResource;
-use App\Models\Dish;
 use App\Models\Driver;
 use App\Models\GeneralOrder;
-use App\Models\Order;
-use App\Models\OrderItem;
 use App\Services\OrderItem\OrderItemFacade;
-use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use PHPUnit\Event\Exception;
-use Symfony\Component\HttpFoundation\Response as ResponseAlias;
 
 class GeneralOrderService
 {

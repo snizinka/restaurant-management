@@ -3,7 +3,6 @@
 namespace App\Services\Order;
 
 use App\Models\Order;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class OrderService

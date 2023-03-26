@@ -6,9 +6,7 @@ use App\Http\Resources\OrderItemResource;
 use App\Models\Dish;
 use App\Models\Order;
 use App\Models\OrderItem;
-use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
-use Symfony\Component\HttpFoundation\Response as ResponseAlias;
 
 class OrderItemService
 {

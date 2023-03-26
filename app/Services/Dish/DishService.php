@@ -4,10 +4,8 @@ namespace App\Services\Dish;
 
 use App\Http\Resources\DishesResource;
 use App\Models\Dish;
-use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
 use PHPUnit\Event\Exception;
-use Symfony\Component\HttpFoundation\Response as ResponseAlias;
 
 class DishService
 {
