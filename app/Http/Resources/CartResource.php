@@ -12,11 +12,11 @@ class CartResource extends JsonResource
         return [
             'id' => (string)$this->id,
             'relationships' => [
-                'order' => [
-                    'id' => $this->order->id,
-                    'status' => $this->order->status
+                'general_order' => [
+                    'id' => $this->generalOrder->id,
+                    'status' => $this->generalOrder->status
                 ],
-                'order_items' => OrderItemResource::collection($this->order->orderItems)
+                'order_items' => OrderResource::collection($this->generalOrder->orders)
             ]
         ];
     }

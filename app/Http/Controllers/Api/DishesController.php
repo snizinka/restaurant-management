@@ -7,7 +7,9 @@ use App\Http\Requests\StoreDishRequest;
 use App\Http\Resources\DishesResource;
 use App\Models\Dish;
 use App\Models\User;
+use App\Services\Dish\DishFacade;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use PHPUnit\Event\Exception;
@@ -27,33 +29,18 @@ class DishesController extends Controller
 
         try {
             DB::beginTransaction();
-            $dish = Dish::create([
-                'name' => $request->name,
-                'price' => $request->price,
-                'ingredients' => $request->ingredients,
-                'category_id' => $request->category_id,
-                'restaurant_id' => $request->restaurant_id
-            ]);
+            $dish = DishFacade::create($request);
             DB::commit();
         } catch(Exception $ex) {
             DB::rollBack();
             abort(500);
         }
 
-
-        return new DishesResource($dish);
+        return $dish;
     }
     public function show(string $id)
     {
-        $dish = Dish::where('id', $id)->first();
-
-        if($dish == null) {
-            return [];
-        }
-
-        return new DishesResource(
-            $dish
-        );
+        return DishFacade::getDish($id);
     }
     public function edit(string $id)
     {
@@ -62,40 +49,13 @@ class DishesController extends Controller
     public function update(StoreDishRequest $request, string $id)
     {
         $request->validated($request->all());
-        $dish = Dish::where('id', $id)->first();
-        $data = [
-            'name' => $request->input('name'),
-            'price' => $request->input('price'),
-            'ingredients' => $request->input('ingredients'),
-            'category_id' => $request->input('category_id'),
-            'restaurant_id' => $request->input('restaurant_id'),
-        ];
+        $dish = DishFacade::update($id, $request);
 
-        try {
-            DB::beginTransaction();
-            $dish->update($data);
-            DB::commit();
-        } catch(Exception $ex) {
-            DB::rollBack();
-            abort(500);
-        }
-
-        return new DishesResource($dish);
+        return $dish;
     }
 
-    public function destroy(string $id)
+    public function destroy(string $id): Response
     {
-        $dish = Dish::where('id', $id)->first();
-
-        try {
-            DB::beginTransaction();
-            $dish->delete();
-            DB::commit();
-        } catch(Exception $ex) {
-            DB::rollBack();
-            abort(500);
-        }
-
-        return true;
+        return DishFacade::delete($id);
     }
 }

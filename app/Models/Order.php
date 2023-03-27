@@ -10,18 +10,18 @@ class Order extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $fillable = ['user_id', 'driver_id', 'status', 'address', 'phone', 'username'];
+    protected $fillable = ['general_orders_id', 'order_number', 'restaurant_id'];
     protected $dates = ['deleted_at'];
 
-    public function driver() {
-        return $this->belongsTo(Driver::class);
-    }
-
-    public function user() {
-        return $this->belongsTo(User::class);
+    public function generalOrder() {
+        return $this->belongsTo(GeneralOrder::class, 'general_orders_id', 'id');
     }
 
     public function orderItems() {
-        return $this->hasMany(OrderItem::class);
+        return $this->hasMany(OrderItem::class, 'order_id', 'id');
+    }
+
+    public function restaurant() {
+        return $this->belongsTo(Restaurant::class);
     }
 }

@@ -6,10 +6,9 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-
     public function up(): void
     {
-        Schema::create('orders', function (Blueprint $table) {
+        Schema::create('general_orders', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('user_id');
             $table->unsignedBigInteger('driver_id')->nullable();
@@ -20,11 +19,11 @@ return new class extends Migration
             $table->foreign('driver_id')->references('id')->on('drivers')->onDelete('cascade');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
-
     public function down(): void
     {
-        Schema::dropIfExists('orders');
+        Schema::dropIfExists('general_orders');
     }
 };
