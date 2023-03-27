@@ -122,6 +122,8 @@ class OrderController extends Controller
         }
         else if ($generalOrder->user_id != Auth::id()) {
             return response()->json(['error' => "You are trying to access someone else's order"], 403);
+        } else if($generalOrder->status == 0) {
+            return response()->json(['message' => 'Completed order not found.'], 404);
         }
 
         $orders = Order::where('general_orders_id', $generalOrder->id)->get();
@@ -176,8 +178,11 @@ class OrderController extends Controller
                 'address' => $generalOrder->address,
                 'phone' => $generalOrder->phone,
                 'username' => $generalOrder->username,
-                'status' => 1
+                'status' => is_null($generalOrder->address) ? 0 : 1
             ]);
+            if (!is_null($generalOrder->address)) {
+                CartFacade::clearCart();
+            }
         }
 
         return new GeneralOrderResource($duplicateGeneralOrder);
