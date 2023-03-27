@@ -15,14 +15,14 @@ class VerifyEmailController extends Controller
         $user = User::where('id', $request->id)->first();
 
         if ($user->hasVerifiedEmail()) {
-            return redirect('http://127.0.0.1:8080' . '/email/verify/already-success');
+            return redirect(config('app.front-side') . '/email/verify/already-success');
         }
 
         if ($user->markEmailAsVerified()) {
             event(new Verified($user));
         }
 
-        return redirect('http://127.0.0.1:8080' . '/email/verify/success');
+        return redirect(config('app.front-side') . '/email/verify/success');
     }
 
     public function reset(Request $request): RedirectResponse {
